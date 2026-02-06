@@ -63,11 +63,26 @@
         }
 
         /* --- DASHBOARD GRID --- */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-        }
+        /* --- DASHBOARD GRID --- */
+.grid {
+    display: grid;
+    gap: 20px;
+    /* Center the grid on page */
+    margin: 0 auto; 
+    
+    /* --- MOBILE DEFAULT (Small Screen) --- */
+    /* Forces exactly 2 columns. Since you have 8 cards, this creates 4 neat rows. */
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* --- LAPTOP/PC OVERRIDE (Big Screen) --- */
+/* When screen is wider than 768px (standard tablet/laptop cutoff) */
+@media (min-width: 768px) {
+    .grid {
+        /* Forces exactly 4 columns. This creates 2 neat rows. */
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
 
         .card {
             background: var(--glass);
@@ -254,7 +269,7 @@
 
     <div class="container">
         <h1>Happy Valentine's Week!</h1>
-        <p class="subtitle">7 days of Love, (Well, actually 8 :3) <br>For Kusum</p>
+        <p class="subtitle">8 days, 8 smoll gestures<br>For Kusum</p>
 
         <div class="grid" id="grid">
             </div>
@@ -509,7 +524,7 @@ function gameWin() {
             <h2 style="font-size:2rem; margin:0;">You Won!</h2>
             <p style="padding: 0 20px; color: #555;">
                 You caught the required number of roses<br> 
-                  and won the game! (Also my Heart! 🥺) <br><br>
+                  and won the game! (And also my Heart! 🥺) <br><br>
                 <span style="font-size: 1.2rem; color: #ff3366; font-weight:bold;">Happy Rose Day, Kusum!</span>
             </p>
         </div>

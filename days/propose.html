@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Propose Day 💍</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- SHARED STYLES --- */
+        :root { --primary: #ff3366; --glass: rgba(255, 255, 255, 0.3); --border: rgba(255, 255, 255, 0.6); --text: #2d3436; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Poppins', sans-serif; margin: 0; padding: 0; min-height: 100vh;
+            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #ffd1ff, #a18cd1);
+            background-size: 400% 400%; animation: gradientBG 15s ease infinite;
+            color: var(--text); overflow: hidden;
+            text-align: center;
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .container { 
+            max-width: 800px; margin: 0 auto; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; justify-content: center; 
+        }
+
+        h2 { font-family: 'Dancing Script', cursive; font-size: 3rem; color: #fff; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); margin: 10px 0; }
+        p { font-size: 1.2rem; color: #fff; margin-bottom: 30px; }
+        
+        /* Back Button */
+        .back-btn {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(255,255,255,0.4); padding: 10px 20px; border-radius: 20px;
+            text-decoration: none; color: white; font-weight: bold; backdrop-filter: blur(5px);
+            z-index: 100;
+        }
+
+        /* --- PROPOSE DAY SPECIFIC --- */
+        .emoji-big { font-size: 100px; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .btn-group {
+            position: relative;
+            /* No fixed width/height here so buttons flow naturally */
+            display: flex; justify-content: center; gap: 30px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 15px 40px; font-size: 1.2rem; border: none; border-radius: 50px; cursor: pointer;
+            color: white; font-weight: bold; transition: transform 0.2s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .yes-btn { background: #2ecc71; z-index: 10;}
+        .yes-btn:hover { transform: scale(1.1); }
+        
+        .no-btn { 
+            background: #e74c3c; 
+            /* IMPORTANT: Removed 'position: absolute' so it sits next to YES initially */
+            position: relative; 
+            transition: 0.1s; 
+        }
+        
+        /* Success Message styling */
+        #success-msg { display: none; flex-direction: column; align-items: center; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <a href="../index.html" class="back-btn">← Back</a>
+
+    <div class="container">
+        
+        <div id="proposal-screen">
+            <div class="emoji-big">💍</div>
+            <h2>A Very Serious Question</h2>
+            
+            <p><b>Will you be my Valentine?</b></p>
+            <p>(Even if Jamaat comes to power)</p>
+
+            <div class="btn-group">
+                <button class="action-btn yes-btn" onclick="acceptProposal()">YES! ❤️</button>
+                <button id="no-btn" class="action-btn no-btn" onmouseover="runAway()" ontouchstart="runAway()">NO 💔</button>
+            </div>
+        </div>
+
+        <div id="success-msg">
+            <div class="emoji-big">🥰</div>
+            <h2>She Said YES!</h2>
+            <p>I knew you wouldn't say no!<br>(Mostly because I didn't let you :3)</p>
+        </div>
+
+    </div>
+
+    <script>
+        function runAway() {
+            const btn = document.getElementById('no-btn');
+            
+            // Calculate random positions within the visible window
+            // Subtracting button size (approx 100px) and padding to keep it visible
+            const maxX = window.innerWidth - 120;
+            const maxY = window.innerHeight - 100;
+            
+            const randomX = Math.random() * (maxX - 50) + 50;
+            const randomY = Math.random() * (maxY - 50) + 50;
+
+            // Apply the new position
+            // This pulls it out of the flex-flow and makes it jump
+            btn.style.position = 'fixed'; 
+            btn.style.left = randomX + 'px';
+            btn.style.top = randomY + 'px';
+        }
+
+        function acceptProposal() {
+            document.getElementById('proposal-screen').style.display = 'none';
+            document.getElementById('success-msg').style.display = 'flex';
+            
+            // Celebration Confetti (Simple version using emojis)
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const emojis = ['❤️', '💍', '✨', '💖', '🥰'];
+            const container = document.body;
+            
+            for(let i=0; i<50; i++) {
+                const conf = document.createElement('div');
+                conf.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                conf.style.position = 'fixed';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.top = -50 + 'px';
+                conf.style.fontSize = Math.random() * 20 + 20 + 'px';
+                conf.style.transition = 'transform 3s linear, opacity 3s';
+                container.appendChild(conf);
+
+                setTimeout(() => {
+                    conf.style.transform = `translateY(${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg)`;
+                    conf.style.opacity = 0;
+                }, 100);
+
+                setTimeout(() => { conf.remove(); }, 3000);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chocolate Day 🍫</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- CHOCOLATE THEME --- */
+        :root { 
+            --primary: #8b4513; --accent: #d2691e; --bg: #fff5e6; --text: #5d4037;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif; margin: 0; padding: 0; min-height: 100vh;
+            background: linear-gradient(135deg, #6d4c41 0%, #a1887f 100%);
+            color: white; overflow: hidden; text-align: center; user-select: none;
+        }
+
+        .container { 
+            max-width: 800px; margin: 0 auto; padding: 20px; 
+            display: flex; flex-direction: column; align-items: center; 
+            min-height: 100vh; justify-content: center; 
+        }
+
+        h2 { font-family: 'Dancing Script', cursive; font-size: 3rem; margin: 10px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.3); }
+        p { font-size: 1.1rem; margin-bottom: 20px; line-height: 1.6; }
+
+        /* --- UI ELEMENTS --- */
+        .btn {
+            background: linear-gradient(45deg, #ffcc80, #ffab91);
+            color: #5d4037; border: none; padding: 15px 40px; font-size: 1.2rem;
+            border-radius: 50px; cursor: pointer; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
+        }
+        .btn:hover { transform: scale(1.1); }
+        
+        .back-btn {
+            position: absolute; top: 20px; left: 20px;
+            background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 20px;
+            text-decoration: none; color: white; font-weight: bold; backdrop-filter: blur(5px);
+            z-index: 100;
+        }
+
+        /* --- GAME BOARD --- */
+        #game-board {
+            display: none; position: relative;
+            width: 90vw; max-width: 600px; height: 50vh; min-height: 400px;
+            background: rgba(255, 255, 255, 0.15); border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.3); overflow: hidden; cursor: crosshair;
+        }
+
+        .hud {
+            display: none; justify-content: space-between;
+            width: 100%; max-width: 500px; margin-bottom: 10px; font-size: 1.2rem; font-weight: bold;
+        }
+
+        /* --- POPUP ITEMS --- */
+        .item {
+            position: absolute; cursor: pointer;
+            animation: popUp var(--duration, 1s) ease-in-out; 
+            user-select: none; transition: transform 0.1s;
+        }
+        .item:active { transform: scale(0.9); }
+
+        @keyframes popUp {
+            0% { transform: scale(0); opacity: 0; }
+            10% { transform: scale(1.1); opacity: 1; }
+            20% { transform: scale(1); }
+            80% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .score-float {
+            position: absolute; color: #ffd700; font-weight: bold; font-size: 2rem;
+            animation: floatUp 0.8s linear forwards; pointer-events: none; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+        @keyframes floatUp { to { transform: translateY(-80px); opacity: 0; } }
+
+        /* --- VOUCHER --- */
+        .voucher {
+            background: white; color: #5d4037; padding: 30px;
+            border-radius: 15px; width: 90%; max-width: 400px;
+            transform: rotate(-2deg); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 2px dashed #8b4513; animation: popIn 0.5s ease;
+        }
+        @keyframes popIn { from { transform: scale(0) rotate(-10deg); } to { transform: scale(1) rotate(-2deg); } }
+    </style>
+</head>
+<body>
+
+    <a href="../index.html" class="back-btn">← Back</a>
+
+    <div class="container">
+        
+        <div id="intro-screen">
+            <div style="font-size: 80px;">🍫</div>
+            <h2>Happy Chocolate Day!</h2>
+            <p>You are sweeter than any chocolate.<br>But can you catch them all?</p>
+            <p style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
+                <b>Mission:</b> Click 15 Chocolates! 🍫🍬<br>
+                <b>Avoid:</b> The Onions 🧄 (-3 pts)
+            </p>
+            <button class="btn" onclick="startGame()">Start Game</button>
+            <p id="device-msg" style="font-size: 0.8rem; margin-top: 10px; opacity: 0.8;"></p>
+        </div>
+
+        <div class="hud" id="hud">
+            <span>Score: <span id="score">0</span></span>
+            <span>Time: <span id="time">30</span>s</span>
+        </div>
+        
+        <div id="game-board"></div>
+
+        <div id="win-screen" style="display:none;">
+            <div class="voucher">
+                <h2 style="font-family:'Poppins'; font-size:1.5rem; margin:0; color:#d2691e;">OFFICIAL VOUCHER</h2>
+                <h1 style="color:#5d4037; font-size:2.5rem; margin:10px 0;">FREE CHOCOLATE</h1>
+                <p style="color:#666; font-size:0.9rem;">Redeemable anytime from your boyfriend.</p>
+                <div style="font-size:3rem;">🍫🎁</div>
+                <p style="font-size:0.8rem; margin-top:10px;">*Terms & Conditions: Must give a hug to redeem.</p>
+            </div>
+            <br>
+            <button class="btn" onclick="location.reload()">Play Again</button>
+        </div>
+
+        <div id="lose-screen" style="display:none;">
+            <h2>Oh no! Time's Up! ⏳</h2>
+            <p>The chocolates were too fast!<br>But I still owe you one anyway. ❤️</p>
+            <button class="btn" onclick="startGame()">Try Again</button>
+        </div>
+
+    </div>
+
+    <script>
+        let score = 0;
+        let timeLeft = 30;
+        let gameInterval;
+        let spawnInterval;
+        let isPlaying = false;
+
+        // Configuration Variables
+        let SPAWN_RATE = 1000;
+        let STAY_DURATION = 2000;
+        let ITEM_SIZE = '5rem';
+
+        const chocolates = ['🍫', '🍬'];
+        const veggies = ['🧄']; 
+
+        // DETECT DEVICE ON LOAD
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+        
+        if (isMobile) {
+            // Mobile: Fast & Small (Fun chaos)
+            SPAWN_RATE = 600;
+            STAY_DURATION = 800;
+            ITEM_SIZE = '4rem';
+            document.getElementById('device-msg').innerText = "(Mobile Mode Detected: Fast Speed)";
+        } else {
+            // Laptop: Slow & Big (Trackpad friendly)
+            SPAWN_RATE = 600;
+            STAY_DURATION = 1000;
+            ITEM_SIZE = '4rem';
+            document.getElementById('device-msg').innerText = "(Laptop Mode Detected: Relaxed Speed)";
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 30;
+            isPlaying = true;
+            document.getElementById('score').innerText = score;
+            document.getElementById('time').innerText = timeLeft;
+            document.getElementById('game-board').innerHTML = ''; 
+
+            document.getElementById('intro-screen').style.display = 'none';
+            document.getElementById('lose-screen').style.display = 'none';
+            document.getElementById('win-screen').style.display = 'none';
+            document.getElementById('hud').style.display = 'flex';
+            document.getElementById('game-board').style.display = 'block';
+
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time').innerText = timeLeft;
+                if (timeLeft <= 0) endGame(false);
+            }, 1000);
+
+            spawnInterval = setInterval(spawnItem, SPAWN_RATE);
+        }
+
+        function spawnItem() {
+            if (!isPlaying) return;
+
+            const board = document.getElementById('game-board');
+            const item = document.createElement('div');
+            
+            // --- INCREASED ONION FREQUENCY ---
+            // Changed from 0.15 to 0.35
+            // Now 35% chance of Onion (approx 1 in 3 items)
+            const isGood = Math.random() > 0.35; 
+            
+            const content = isGood 
+                ? chocolates[Math.floor(Math.random() * chocolates.length)] 
+                : veggies[Math.floor(Math.random() * veggies.length)];
+
+            item.classList.add('item');
+            item.innerText = content;
+            
+            // Dynamic Size & Speed
+            item.style.fontSize = ITEM_SIZE;
+            item.style.setProperty('--duration', (STAY_DURATION/1000) + 's');
+            
+            // Safe Position (Padding 10% to avoid edges)
+            const x = Math.random() * 80 + 5; 
+            const y = Math.random() * 70 + 10;
+            item.style.left = x + '%';
+            item.style.top = y + '%';
+
+            item.onmousedown = (e) => handleHit(e, item, isGood, x, y);
+            item.ontouchstart = (e) => handleHit(e, item, isGood, x, y);
+
+            board.appendChild(item);
+
+            setTimeout(() => { if(item.parentNode) item.remove(); }, STAY_DURATION);
+        }
+
+        function handleHit(e, item, isGood, x, y) {
+            e.stopPropagation(); 
+            e.preventDefault(); 
+            if (!isPlaying) return;
+            
+            if (isGood) {
+                score++;
+                showFloat("+1", x, y, "#ffd700");
+            } else {
+                // Penalties
+                score = Math.max(0, score - 3);
+                showFloat("-3", x, y, "#ff4d4d");
+                const board = document.getElementById('game-board');
+                board.style.borderColor = "#ff4d4d";
+                setTimeout(() => board.style.borderColor = "rgba(255,255,255,0.3)", 200);
+            }
+            
+            document.getElementById('score').innerText = score;
+            item.style.pointerEvents = 'none';
+            item.style.transform = 'scale(1.5)';
+            item.style.opacity = '0';
+            setTimeout(() => item.remove(), 100);
+
+            if (score >= 15) endGame(true);
+        }
+
+        function showFloat(text, x, y, color) {
+            const float = document.createElement('div');
+            float.classList.add('score-float');
+            float.innerText = text;
+            float.style.left = x + '%';
+            float.style.top = y + '%';
+            float.style.color = color;
+            document.getElementById('game-board').appendChild(float);
+            setTimeout(() => float.remove(), 800);
+        }
+
+        function endGame(win) {
+            isPlaying = false;
+            clearInterval(gameInterval);
+            clearInterval(spawnInterval);
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('game-board').style.display = 'none';
+            
+            if (win) {
+                document.getElementById('win-screen').style.display = 'block';
+            } else {
+                document.getElementById('lose-screen').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

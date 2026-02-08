@@ -161,10 +161,10 @@
 
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
         if (isMobile) {
-            SPAWN_RATE = 450; STAY_DURATION = 600; ITEM_SIZE = '2.5rem';
+            SPAWN_RATE = 450; STAY_DURATION = 600; ITEM_SIZE = '3rem';
             document.getElementById('device-msg').innerText = "(Mobile Mode)";
         } else {
-            SPAWN_RATE = 450; STAY_DURATION = 900; ITEM_SIZE = '3rem';
+            SPAWN_RATE = 450; STAY_DURATION = 1000; ITEM_SIZE = '3.5rem';
             document.getElementById('device-msg').innerText = "(Laptop Mode)";
         }
 
@@ -268,4 +268,5 @@
     </script>
 </body>
 </html>
+
 

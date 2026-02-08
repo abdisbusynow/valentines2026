@@ -107,7 +107,7 @@
 
         <div class="hud" id="hud">
             <span>Score: <span id="score">0</span></span>
-            <span>Time: <span id="time">30</span>s</span>
+            <span>Time: <span id="time">20</span>s</span>
         </div>
         
         <div id="game-board"></div>
@@ -134,7 +134,7 @@
 
     <script>
         let score = 0;
-        let timeLeft = 30;
+        let timeLeft = 20;
         let gameInterval;
         let spawnInterval;
         let isPlaying = false;
@@ -166,7 +166,7 @@
 
         function startGame() {
             score = 0;
-            timeLeft = 30;
+            timeLeft = 20;
             isPlaying = true;
             document.getElementById('score').innerText = score;
             document.getElementById('time').innerText = timeLeft;

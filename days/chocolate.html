@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chocolate Day 🍫</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         /* --- CHOCOLATE THEME --- */
@@ -15,6 +16,7 @@
             font-family: 'Poppins', sans-serif; margin: 0; padding: 0; min-height: 100vh;
             background: linear-gradient(135deg, #6d4c41 0%, #a1887f 100%);
             color: white; overflow: hidden; text-align: center; user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .container { 
@@ -34,7 +36,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
             margin: 10px;
         }
-        .btn:hover { transform: scale(1.1); }
+        .btn:active { transform: scale(0.95); }
         
         .back-btn {
             position: absolute; top: 20px; left: 20px;
@@ -46,9 +48,10 @@
         /* --- GAME BOARD --- */
         #game-board {
             display: none; position: relative;
-            width: 90vw; max-width: 600px; height: 50vh; min-height: 400px;
+            width: 95vw; max-width: 600px; height: 50vh; min-height: 400px;
             background: rgba(255, 255, 255, 0.15); border-radius: 20px;
             border: 2px solid rgba(255,255,255,0.3); overflow: hidden; cursor: crosshair;
+            touch-action: none;
         }
 
         .hud {
@@ -78,37 +81,43 @@
         }
         @keyframes floatUp { to { transform: translateY(-80px); opacity: 0; } }
 
-        /* --- VOUCHER POPUP --- */
+        /* --- VOUCHER POPUP (MOBILE OPTIMIZED) --- */
         .voucher-container {
-            display: none; /* Hidden initially */
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 200;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 200;
             justify-content: center; align-items: center;
             backdrop-filter: blur(5px);
+            padding: 20px;
         }
 
         .voucher {
-            background: #fff; color: #5d4037; padding: 30px;
-            border-radius: 15px; width: 90%; max-width: 450px;
+            background: #fff; color: #5d4037; padding: 25px;
+            border-radius: 15px; width: 100%; max-width: 400px;
             border: 4px dashed #8b4513; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             position: relative;
-            animation: popIn 0.5s ease;
+            animation: popIn 0.3s ease;
+            box-sizing: border-box;
         }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         .voucher-header {
             background: #8b4513; color: white; padding: 10px;
-            margin: -30px -30px 20px -30px; border-radius: 10px 10px 0 0;
-            font-family: 'Poppins'; font-weight: bold; letter-spacing: 2px;
+            margin: -25px -25px 20px -25px; border-radius: 10px 10px 0 0;
+            font-family: 'Poppins'; font-weight: bold; letter-spacing: 2px; font-size: 0.9rem;
         }
 
-        .print-btn {
-            background: #5d4037; color: white; margin-top: 20px; font-size: 1rem; padding: 10px 25px;
+        .download-btn {
+            background: #27ae60; color: white; margin-top: 15px; 
+            font-size: 1rem; padding: 12px 30px; width: 100%;
+            border-radius: 10px; border: none; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
 
         .close-voucher {
-            position: absolute; top: 10px; right: 15px; color: white; font-size: 1.5rem; cursor: pointer;
+            position: absolute; top: -40px; right: 0; color: white; 
+            font-size: 2rem; cursor: pointer; background: rgba(0,0,0,0.5);
+            width: 40px; height: 40px; border-radius: 50%; line-height: 40px;
         }
     </style>
 </head>
@@ -123,7 +132,7 @@
             <h2>Happy Chocolate Day!</h2>
             <p>তুমি হলা Kitkat, আমি হলাম Bounty,<br>তোমার-আমার বিয়ে হলেই,<br>ফিরবে দেশে শান্তি...💪 </p>
             <p style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
-                <b>Mission:</b> Click 20 Chocolates! 🍫🍬<br>
+                <b>Mission:</b> Catch 20 Chocolates! 🍫🍬<br>
                 <b>Avoid:</b> The Onions 🧄 (-5 pts)
             </p>
             <button class="btn" onclick="startGame()">Start Challenge</button>
@@ -147,17 +156,23 @@
         </div>
 
         <div id="voucher-popup" class="voucher-container">
-            <div class="voucher" id="printable-voucher">
+            <div style="position:relative; width:100%; max-width:400px;">
                 <span class="close-voucher" onclick="closeVoucher()">&times;</span>
-                <div class="voucher-header">OFFICIAL COUPON</div>
-                <h1 style="font-family:'Dancing Script'; font-size: 3rem; margin: 10px 0; color: #d2691e;">Free Chocolate</h1>
-                <p>This voucher entitles <b>Kusum</b> to:</p>
-                <h3 style="margin: 10px 0;">ONE (1) Delicious Chocolate Bar 🍫</h3>
-                <p style="font-size: 0.9rem; color: #888;">Redeemable from: <b>Farhan</b></p>
-                <div style="margin: 20px 0; border-top: 2px dotted #ccc; padding-top: 10px;">
-                    <small>Valid until: Forever ❤️<br>Terms: Must be redeemed with a hug.</small>
+                
+                <div class="voucher" id="printable-voucher">
+                    <div class="voucher-header">OFFICIAL COUPON</div>
+                    <h1 style="font-family:'Dancing Script'; font-size: 2.5rem; margin: 10px 0; color: #d2691e;">Free Chocolate</h1>
+                    <p style="font-size: 0.9rem;">This voucher entitles <b>Kusum</b> to:</p>
+                    <h3 style="margin: 10px 0; font-size: 1.1rem;">ONE (1) Delicious Chocolate Bar 🍫</h3>
+                    <p style="font-size: 0.8rem; color: #888;">Redeemable from: <b>Farhan</b></p>
+                    <div style="margin: 15px 0; border-top: 2px dotted #ccc; padding-top: 10px;">
+                        <small style="font-size: 0.7rem; color: #555;">Valid until: Forever ❤️<br>Terms: Must be redeemed with a hug.</small>
+                    </div>
                 </div>
-                <button class="btn print-btn" onclick="window.print()">🖨️ Print / Save</button>
+
+                <button class="download-btn" onclick="downloadTicket()">
+                    📥 Save to Gallery
+                </button>
             </div>
         </div>
 
@@ -176,7 +191,7 @@
         let spawnInterval;
         let isPlaying = false;
 
-        // Configuration Variables
+        // Configuration (Nightmare Difficulty)
         let SPAWN_RATE = 1000;
         let STAY_DURATION = 2000;
         let ITEM_SIZE = '5rem';
@@ -184,21 +199,18 @@
         const chocolates = ['🍫', '🍬'];
         const veggies = ['🧄']; 
 
-        // DETECT DEVICE ON LOAD
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
         
         if (isMobile) {
-            // --- INSANE MODE FOR MOBILE ---
             SPAWN_RATE = 450; 
             STAY_DURATION = 600; 
             ITEM_SIZE = '3.5rem';
-            document.getElementById('device-msg').innerText = "(Mobile Mode: Insane Speed)";
+            document.getElementById('device-msg').innerText = "(Mobile Mode)";
         } else {
-            // --- INSANE MODE FOR LAPTOP ---
             SPAWN_RATE = 450; 
             STAY_DURATION = 700;
             ITEM_SIZE = '4rem';
-            document.getElementById('device-msg').innerText = "(Laptop Mode: Insane Speed)";
+            document.getElementById('device-msg').innerText = "(Laptop Mode)";
         }
 
         function startGame() {
@@ -230,7 +242,6 @@
             const board = document.getElementById('game-board');
             const item = document.createElement('div');
             
-            // --- 40% CHANCE OF ONION ---
             const isGood = Math.random() > 0.40; 
             
             const content = isGood 
@@ -247,8 +258,9 @@
             item.style.left = x + '%';
             item.style.top = y + '%';
 
-            item.onmousedown = (e) => handleHit(e, item, isGood, x, y);
-            item.ontouchstart = (e) => handleHit(e, item, isGood, x, y);
+            const hitHandler = (e) => handleHit(e, item, isGood, x, y);
+            item.addEventListener('mousedown', hitHandler);
+            item.addEventListener('touchstart', hitHandler, {passive: false});
 
             board.appendChild(item);
 
@@ -256,14 +268,15 @@
         }
 
         function handleHit(e, item, isGood, x, y) {
-            e.stopPropagation(); e.preventDefault(); 
+            e.stopPropagation(); 
+            if(e.type === 'touchstart') e.preventDefault(); 
+            
             if (!isPlaying) return;
             
             if (isGood) {
                 score++;
                 showFloat("+1", x, y, "#ffd700");
             } else {
-                // --- FATAL PENALTY (-5) ---
                 score = Math.max(0, score - 5);
                 showFloat("-5", x, y, "#ff4d4d");
                 const board = document.getElementById('game-board');
@@ -277,7 +290,6 @@
             item.style.opacity = '0';
             setTimeout(() => item.remove(), 100);
 
-            // --- WIN GOAL: 20 POINTS ---
             if (score >= 20) endGame(true);
         }
 
@@ -312,6 +324,25 @@
 
         function closeVoucher() {
             document.getElementById('voucher-popup').style.display = 'none';
+        }
+
+        function downloadTicket() {
+            const btn = document.querySelector('.download-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Saving... 📸";
+            
+            html2canvas(document.getElementById('printable-voucher'), {
+                scale: 3, // High resolution
+                backgroundColor: null,
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'chocolate-voucher.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                
+                btn.innerText = "Saved! ✅";
+                setTimeout(() => btn.innerText = originalText, 2000);
+            });
         }
     </script>
 </body>

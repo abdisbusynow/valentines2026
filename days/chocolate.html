@@ -5,128 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Chocolate Day 🍫</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* --- CHOCOLATE THEME --- */
-        :root { 
-            --primary: #8b4513; --accent: #d2691e; --bg: #fff5e6; --text: #5d4037;
-        }
-
+        :root { --primary: #8b4513; --accent: #d2691e; --bg: #fff5e6; --text: #5d4037; }
         body {
             font-family: 'Poppins', sans-serif; margin: 0; padding: 0; min-height: 100vh;
             background: linear-gradient(135deg, #6d4c41 0%, #a1887f 100%);
             color: white; overflow: hidden; text-align: center; user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
-
         .container { 
             max-width: 800px; margin: 0 auto; padding: 20px; 
             display: flex; flex-direction: column; align-items: center; 
             min-height: 100vh; justify-content: center; 
         }
-
         h2 { font-family: 'Dancing Script', cursive; font-size: 3rem; margin: 10px 0; text-shadow: 2px 2px 0px rgba(0,0,0,0.3); }
         p { font-size: 1.1rem; margin-bottom: 20px; line-height: 1.6; }
-
-        /* --- UI ELEMENTS --- */
         .btn {
             background: linear-gradient(45deg, #ffcc80, #ffab91);
             color: #5d4037; border: none; padding: 15px 40px; font-size: 1.2rem;
             border-radius: 50px; cursor: pointer; font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
-            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.2s; margin: 10px;
         }
         .btn:active { transform: scale(0.95); }
-        
         .back-btn {
             position: absolute; top: 20px; left: 20px;
             background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 20px;
             text-decoration: none; color: white; font-weight: bold; backdrop-filter: blur(5px);
             z-index: 100;
         }
-
-        /* --- GAME BOARD --- */
         #game-board {
             display: none; position: relative;
             width: 95vw; max-width: 600px; height: 50vh; min-height: 400px;
             background: rgba(255, 255, 255, 0.15); border-radius: 20px;
-            border: 2px solid rgba(255,255,255,0.3); overflow: hidden; cursor: crosshair;
-            touch-action: none;
+            border: 2px solid rgba(255,255,255,0.3); overflow: hidden; cursor: crosshair; touch-action: none;
         }
-
         .hud {
             display: none; justify-content: space-between;
             width: 100%; max-width: 500px; margin-bottom: 10px; font-size: 1.2rem; font-weight: bold;
         }
-
-        /* --- POPUP ITEMS --- */
         .item {
             position: absolute; cursor: pointer;
             animation: popUp var(--duration, 1s) ease-in-out; 
             user-select: none; transition: transform 0.1s;
         }
         .item:active { transform: scale(0.9); }
-
         @keyframes popUp {
-            0% { transform: scale(0); opacity: 0; }
-            10% { transform: scale(1.1); opacity: 1; }
-            20% { transform: scale(1); }
-            80% { transform: scale(1); opacity: 1; }
+            0% { transform: scale(0); opacity: 0; } 10% { transform: scale(1.1); opacity: 1; }
+            20% { transform: scale(1); } 80% { transform: scale(1); opacity: 1; }
             100% { transform: scale(0); opacity: 0; }
         }
-
         .score-float {
             position: absolute; color: #ffd700; font-weight: bold; font-size: 2rem;
             animation: floatUp 0.8s linear forwards; pointer-events: none; text-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
         @keyframes floatUp { to { transform: translateY(-80px); opacity: 0; } }
-
-        /* --- VOUCHER POPUP (MOBILE OPTIMIZED) --- */
+        
         .voucher-container {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 200;
             justify-content: center; align-items: center;
-            backdrop-filter: blur(5px);
-            padding: 20px;
+            backdrop-filter: blur(5px); padding: 20px;
         }
-
-        .voucher {
-            background: #fff; color: #5d4037; padding: 25px;
-            border-radius: 15px; width: 100%; max-width: 400px;
-            border: 4px dashed #8b4513; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            position: relative;
-            animation: popIn 0.3s ease;
-            box-sizing: border-box;
-        }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-        .voucher-header {
-            background: #8b4513; color: white; padding: 10px;
-            margin: -25px -25px 20px -25px; border-radius: 10px 10px 0 0;
-            font-family: 'Poppins'; font-weight: bold; letter-spacing: 2px; font-size: 0.9rem;
-        }
-
+        .voucher-wrapper { position: relative; width: 100%; max-width: 400px; }
         .download-btn {
             background: #27ae60; color: white; margin-top: 15px; 
             font-size: 1rem; padding: 12px 30px; width: 100%;
             border-radius: 10px; border: none; font-weight: bold;
             display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-
         .close-voucher {
-            position: absolute; top: -40px; right: 0; color: white; 
+            position: absolute; top: -50px; right: 0; color: white; 
             font-size: 2rem; cursor: pointer; background: rgba(0,0,0,0.5);
-            width: 40px; height: 40px; border-radius: 50%; line-height: 40px;
+            width: 40px; height: 40px; border-radius: 50%; line-height: 40px; text-align: center;
         }
     </style>
 </head>
 <body>
-
     <a href="../index.html" class="back-btn">← Back</a>
-
     <div class="container">
-        
         <div id="intro-screen">
             <div style="font-size: 50px;">🍫</div>
             <h2>Happy Chocolate Day!</h2>
@@ -138,14 +95,11 @@
             <button class="btn" onclick="startGame()">Start Challenge</button>
             <p id="device-msg" style="font-size: 0.8rem; margin-top: 10px; opacity: 0.8;"></p>
         </div>
-
         <div class="hud" id="hud">
             <span>Score: <span id="score">0</span></span>
             <span>Time: <span id="time">20</span>s</span>
         </div>
-        
         <div id="game-board"></div>
-
         <div id="win-screen" style="display:none;">
             <div style="font-size: 80px;">🏆</div>
             <h2>You Won!</h2>
@@ -156,17 +110,33 @@
         </div>
 
         <div id="voucher-popup" class="voucher-container">
-            <div style="position:relative; width:100%; max-width:400px;">
+            <div class="voucher-wrapper">
                 <span class="close-voucher" onclick="closeVoucher()">&times;</span>
                 
-                <div class="voucher" id="printable-voucher">
-                    <div class="voucher-header">OFFICIAL COUPON</div>
-                    <h1 style="font-family:'Dancing Script'; font-size: 2.5rem; margin: 10px 0; color: #d2691e;">Free Chocolate</h1>
-                    <p style="font-size: 0.9rem;">This voucher entitles <b>Kusum</b> to:</p>
-                    <h3 style="margin: 10px 0; font-size: 1.1rem;">ONE (1) Delicious Chocolate Bar 🍫</h3>
-                    <p style="font-size: 0.8rem; color: #888;">Redeemable from: <b>Farhan</b></p>
-                    <div style="margin: 15px 0; border-top: 2px dotted #ccc; padding-top: 10px;">
-                        <small style="font-size: 0.7rem; color: #555;">Valid until: Forever ❤️<br>Terms: Must be redeemed with a hug.</small>
+                <div id="printable-voucher" style="background-color: #fff8e1; color: #3e2723; padding: 25px; border-radius: 15px; width: 100%; border: 6px solid #5d4037; text-align: center; position: relative; box-sizing: border-box;">
+                    
+                    <div style="background-color: #5d4037; color: #ffffff; padding: 12px; margin: -25px -25px 20px -25px; border-radius: 10px 10px 0 0; font-family: 'Poppins', sans-serif; font-weight: 800; letter-spacing: 3px; font-size: 1rem; text-transform: uppercase;">
+                        Official Coupon
+                    </div>
+                    
+                    <h1 style="font-family:'Dancing Script', cursive; font-size: 3rem; margin: 15px 0; color: #d84315; line-height: 1.2;">
+                        Free Chocolate
+                    </h1>
+                    
+                    <p style="font-size: 1rem; color: #4e342e; font-family: 'Poppins', sans-serif; margin: 0;">
+                        This voucher entitles <b>Kusum</b> to:
+                    </p>
+                    
+                    <h3 style="margin: 15px 0; font-size: 1.3rem; font-weight: 800; color: #3e2723; border-bottom: 2px dashed #8d6e63; padding-bottom: 10px; display: inline-block; font-family: 'Poppins', sans-serif;">
+                        ONE (1) Delicious Chocolate Bar 🍫
+                    </h3>
+                    
+                    <p style="font-size: 0.9rem; color: #5d4037; margin-top: 10px; font-family: 'Poppins', sans-serif;">
+                        Redeemable from: <b style="color: #bf360c;">Farhan</b>
+                    </p>
+                    
+                    <div style="margin-top: 20px; font-size: 0.75rem; color: #6d4c41; font-family: 'Poppins', sans-serif;">
+                        Valid until: Forever ❤️<br>Terms: Must be redeemed with a hug.
                     </div>
                 </div>
 
@@ -181,46 +151,28 @@
             <p>The chocolates were too fast :(<br>But I know you can do it! 💪</p>
             <button class="btn" onclick="startGame()">Try Again</button>
         </div>
-
     </div>
 
     <script>
-        let score = 0;
-        let timeLeft = 20; 
-        let gameInterval;
-        let spawnInterval;
-        let isPlaying = false;
-
-        // Configuration (Nightmare Difficulty)
-        let SPAWN_RATE = 1000;
-        let STAY_DURATION = 2000;
-        let ITEM_SIZE = '5rem';
-
-        const chocolates = ['🍫', '🍬'];
-        const veggies = ['🧄']; 
+        let score = 0; let timeLeft = 20; 
+        let gameInterval; let spawnInterval; let isPlaying = false;
+        let SPAWN_RATE = 1000; let STAY_DURATION = 2000; let ITEM_SIZE = '5rem';
+        const chocolates = ['🍫', '🍬']; const veggies = ['🧄']; 
 
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
-        
         if (isMobile) {
-            SPAWN_RATE = 450; 
-            STAY_DURATION = 600; 
-            ITEM_SIZE = '3.5rem';
+            SPAWN_RATE = 450; STAY_DURATION = 600; ITEM_SIZE = '2.5rem';
             document.getElementById('device-msg').innerText = "(Mobile Mode)";
         } else {
-            SPAWN_RATE = 450; 
-            STAY_DURATION = 700;
-            ITEM_SIZE = '4rem';
+            SPAWN_RATE = 450; STAY_DURATION = 800; ITEM_SIZE = '3rem';
             document.getElementById('device-msg').innerText = "(Laptop Mode)";
         }
 
         function startGame() {
-            score = 0;
-            timeLeft = 20; 
-            isPlaying = true;
+            score = 0; timeLeft = 20; isPlaying = true;
             document.getElementById('score').innerText = score;
             document.getElementById('time').innerText = timeLeft;
             document.getElementById('game-board').innerHTML = ''; 
-
             document.getElementById('intro-screen').style.display = 'none';
             document.getElementById('lose-screen').style.display = 'none';
             document.getElementById('win-screen').style.display = 'none';
@@ -232,116 +184,85 @@
                 document.getElementById('time').innerText = timeLeft;
                 if (timeLeft <= 0) endGame(false);
             }, 1000);
-
             spawnInterval = setInterval(spawnItem, SPAWN_RATE);
         }
 
         function spawnItem() {
             if (!isPlaying) return;
-
             const board = document.getElementById('game-board');
             const item = document.createElement('div');
-            
             const isGood = Math.random() > 0.40; 
-            
-            const content = isGood 
-                ? chocolates[Math.floor(Math.random() * chocolates.length)] 
-                : veggies[Math.floor(Math.random() * veggies.length)];
-
-            item.classList.add('item');
-            item.innerText = content;
-            item.style.fontSize = ITEM_SIZE;
+            const content = isGood ? chocolates[Math.floor(Math.random() * chocolates.length)] : veggies[Math.floor(Math.random() * veggies.length)];
+            item.classList.add('item'); item.innerText = content; item.style.fontSize = ITEM_SIZE;
             item.style.setProperty('--duration', (STAY_DURATION/1000) + 's');
-            
-            const x = Math.random() * 80 + 5; 
-            const y = Math.random() * 70 + 10;
-            item.style.left = x + '%';
-            item.style.top = y + '%';
-
+            const x = Math.random() * 80 + 5; const y = Math.random() * 70 + 10;
+            item.style.left = x + '%'; item.style.top = y + '%';
             const hitHandler = (e) => handleHit(e, item, isGood, x, y);
             item.addEventListener('mousedown', hitHandler);
             item.addEventListener('touchstart', hitHandler, {passive: false});
-
             board.appendChild(item);
-
             setTimeout(() => { if(item.parentNode) item.remove(); }, STAY_DURATION);
         }
 
         function handleHit(e, item, isGood, x, y) {
-            e.stopPropagation(); 
-            if(e.type === 'touchstart') e.preventDefault(); 
-            
+            e.stopPropagation(); if(e.type === 'touchstart') e.preventDefault(); 
             if (!isPlaying) return;
-            
-            if (isGood) {
-                score++;
-                showFloat("+1", x, y, "#ffd700");
-            } else {
-                score = Math.max(0, score - 5);
-                showFloat("-5", x, y, "#ff4d4d");
+            if (isGood) { score++; showFloat("+1", x, y, "#ffd700"); } 
+            else { score = Math.max(0, score - 5); showFloat("-5", x, y, "#ff4d4d"); 
                 const board = document.getElementById('game-board');
                 board.style.borderColor = "#ff4d4d";
                 setTimeout(() => board.style.borderColor = "rgba(255,255,255,0.3)", 200);
             }
-            
             document.getElementById('score').innerText = score;
-            item.style.pointerEvents = 'none';
-            item.style.transform = 'scale(1.5)';
-            item.style.opacity = '0';
+            item.style.pointerEvents = 'none'; item.style.transform = 'scale(1.5)'; item.style.opacity = '0';
             setTimeout(() => item.remove(), 100);
-
             if (score >= 20) endGame(true);
         }
 
         function showFloat(text, x, y, color) {
             const float = document.createElement('div');
-            float.classList.add('score-float');
-            float.innerText = text;
-            float.style.left = x + '%';
-            float.style.top = y + '%';
-            float.style.color = color;
+            float.classList.add('score-float'); float.innerText = text;
+            float.style.left = x + '%'; float.style.top = y + '%'; float.style.color = color;
             document.getElementById('game-board').appendChild(float);
             setTimeout(() => float.remove(), 800);
         }
 
         function endGame(win) {
-            isPlaying = false;
-            clearInterval(gameInterval);
-            clearInterval(spawnInterval);
+            isPlaying = false; clearInterval(gameInterval); clearInterval(spawnInterval);
             document.getElementById('hud').style.display = 'none';
             document.getElementById('game-board').style.display = 'none';
-            
-            if (win) {
-                document.getElementById('win-screen').style.display = 'block';
-            } else {
-                document.getElementById('lose-screen').style.display = 'block';
-            }
+            if (win) document.getElementById('win-screen').style.display = 'block';
+            else document.getElementById('lose-screen').style.display = 'block';
         }
 
-        function showVoucher() {
-            document.getElementById('voucher-popup').style.display = 'flex';
-        }
-
-        function closeVoucher() {
-            document.getElementById('voucher-popup').style.display = 'none';
-        }
+        function showVoucher() { document.getElementById('voucher-popup').style.display = 'flex'; }
+        function closeVoucher() { document.getElementById('voucher-popup').style.display = 'none'; }
 
         function downloadTicket() {
             const btn = document.querySelector('.download-btn');
+            const voucher = document.getElementById('printable-voucher');
             const originalText = btn.innerText;
             btn.innerText = "Saving... 📸";
             
-            html2canvas(document.getElementById('printable-voucher'), {
-                scale: 3, // High resolution
-                backgroundColor: null,
+            // 1. Force the background color just in case
+            voucher.style.backgroundColor = "#fff8e1";
+            voucher.style.color = "#3e2723";
+            
+            html2canvas(voucher, {
+                scale: 3, 
+                backgroundColor: "#fff8e1", // Double force for the screenshot engine
+                useCORS: true,
+                logging: false
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'chocolate-voucher.png';
-                link.href = canvas.toDataURL();
+                link.download = 'kusum-chocolate-voucher.png';
+                link.href = canvas.toDataURL('image/png');
                 link.click();
-                
                 btn.innerText = "Saved! ✅";
                 setTimeout(() => btn.innerText = originalText, 2000);
+            }).catch(err => {
+                console.error(err);
+                btn.innerText = "Error ❌";
             });
         }
     </script>

@@ -121,18 +121,19 @@
         <div id="intro-screen">
             <div style="font-size: 50px;">🍫</div>
             <h2>Happy Chocolate Day!</h2>
-            <p>তুমি হলা Kitkat, আমি হলাম Bounty,<br>তোমার-আমার বিয়ে হলেই,<br>ফিরবে দেশে শান্তি...💪 </p>
+            <p>তুমি হলা Kitkat, আমি হলাম Bounty,<br>তোমার-আমার বিয়ে হলেই,<br>ফিরবে দেশে শান্তি...💪 </p>
             <p style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
-                <b>Mission:</b> Click 15 Chocolates! 🍫🍬<br>
-                <b>Avoid:</b> The Onions 🧄 (-3 pts)
+                <b>Mission:</b> Click 20 Chocolates! 🍫🍬<br>
+                <b>Avoid:</b> The Onions 🧄 (-5 pts)
             </p>
-            <button class="btn" onclick="startGame()">Start Game</button>
+            <button class="btn" onclick="startGame()">Start Challenge</button>
             <p id="device-msg" style="font-size: 0.8rem; margin-top: 10px; opacity: 0.8;"></p>
         </div>
 
         <div class="hud" id="hud">
             <span>Score: <span id="score">0</span></span>
-            <span>Time: <span id="time">20</span>s</span> </div>
+            <span>Time: <span id="time">20</span>s</span>
+        </div>
         
         <div id="game-board"></div>
 
@@ -170,7 +171,7 @@
 
     <script>
         let score = 0;
-        let timeLeft = 20; // FIXED: 20s
+        let timeLeft = 20; 
         let gameInterval;
         let spawnInterval;
         let isPlaying = false;
@@ -187,20 +188,22 @@
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
         
         if (isMobile) {
-            SPAWN_RATE = 600;
-            STAY_DURATION = 900;
-            ITEM_SIZE = '4rem';
-            document.getElementById('device-msg').innerText = "(Mobile Mode Detected: Fast Speed)";
+            // --- INSANE MODE FOR MOBILE ---
+            SPAWN_RATE = 450; 
+            STAY_DURATION = 600; 
+            ITEM_SIZE = '3.5rem';
+            document.getElementById('device-msg').innerText = "(Mobile Mode: Insane Speed)";
         } else {
-            SPAWN_RATE = 600;
-            STAY_DURATION = 1000;
+            // --- INSANE MODE FOR LAPTOP ---
+            SPAWN_RATE = 450; 
+            STAY_DURATION = 700;
             ITEM_SIZE = '4rem';
-            document.getElementById('device-msg').innerText = "(Laptop Mode Detected: Relaxed Speed)";
+            document.getElementById('device-msg').innerText = "(Laptop Mode: Insane Speed)";
         }
 
         function startGame() {
             score = 0;
-            timeLeft = 20; // FIXED: 20s
+            timeLeft = 20; 
             isPlaying = true;
             document.getElementById('score').innerText = score;
             document.getElementById('time').innerText = timeLeft;
@@ -227,7 +230,9 @@
             const board = document.getElementById('game-board');
             const item = document.createElement('div');
             
-            const isGood = Math.random() > 0.35; // 35% Bad Items (Onions)
+            // --- 40% CHANCE OF ONION ---
+            const isGood = Math.random() > 0.40; 
+            
             const content = isGood 
                 ? chocolates[Math.floor(Math.random() * chocolates.length)] 
                 : veggies[Math.floor(Math.random() * veggies.length)];
@@ -258,8 +263,9 @@
                 score++;
                 showFloat("+1", x, y, "#ffd700");
             } else {
-                score = Math.max(0, score - 3);
-                showFloat("-3", x, y, "#ff4d4d");
+                // --- FATAL PENALTY (-5) ---
+                score = Math.max(0, score - 5);
+                showFloat("-5", x, y, "#ff4d4d");
                 const board = document.getElementById('game-board');
                 board.style.borderColor = "#ff4d4d";
                 setTimeout(() => board.style.borderColor = "rgba(255,255,255,0.3)", 200);
@@ -271,7 +277,8 @@
             item.style.opacity = '0';
             setTimeout(() => item.remove(), 100);
 
-            if (score >= 15) endGame(true);
+            // --- WIN GOAL: 20 POINTS ---
+            if (score >= 20) endGame(true);
         }
 
         function showFloat(text, x, y, color) {

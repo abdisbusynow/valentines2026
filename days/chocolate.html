@@ -32,6 +32,7 @@
             color: #5d4037; border: none; padding: 15px 40px; font-size: 1.2rem;
             border-radius: 50px; cursor: pointer; font-weight: bold;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.2s;
+            margin: 10px;
         }
         .btn:hover { transform: scale(1.1); }
         
@@ -77,14 +78,38 @@
         }
         @keyframes floatUp { to { transform: translateY(-80px); opacity: 0; } }
 
-        /* --- VOUCHER --- */
-        .voucher {
-            background: white; color: #5d4037; padding: 30px;
-            border-radius: 15px; width: 90%; max-width: 400px;
-            transform: rotate(-2deg); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 2px dashed #8b4513; animation: popIn 0.5s ease;
+        /* --- VOUCHER POPUP --- */
+        .voucher-container {
+            display: none; /* Hidden initially */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 200;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(5px);
         }
-        @keyframes popIn { from { transform: scale(0) rotate(-10deg); } to { transform: scale(1) rotate(-2deg); } }
+
+        .voucher {
+            background: #fff; color: #5d4037; padding: 30px;
+            border-radius: 15px; width: 90%; max-width: 450px;
+            border: 4px dashed #8b4513; text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            position: relative;
+            animation: popIn 0.5s ease;
+        }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .voucher-header {
+            background: #8b4513; color: white; padding: 10px;
+            margin: -30px -30px 20px -30px; border-radius: 10px 10px 0 0;
+            font-family: 'Poppins'; font-weight: bold; letter-spacing: 2px;
+        }
+
+        .print-btn {
+            background: #5d4037; color: white; margin-top: 20px; font-size: 1rem; padding: 10px 25px;
+        }
+
+        .close-voucher {
+            position: absolute; top: 10px; right: 15px; color: white; font-size: 1.5rem; cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -94,9 +119,9 @@
     <div class="container">
         
         <div id="intro-screen">
-            <div style="font-size: 80px;">🍫</div>
+            <div style="font-size: 50px;">🍫</div>
             <h2>Happy Chocolate Day!</h2>
-            <p>You are sweeter than any chocolate.<br>But can you catch them all?</p>
+            <p>তুমি হলা Kitkat, আমি হলাম Bounty,<br>তোমার-আমার বিয়ে হলেই,<br>ফিরবে দেশে শান্তি...💪 </p>
             <p style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px;">
                 <b>Mission:</b> Click 15 Chocolates! 🍫🍬<br>
                 <b>Avoid:</b> The Onions 🧄 (-3 pts)
@@ -107,21 +132,32 @@
 
         <div class="hud" id="hud">
             <span>Score: <span id="score">0</span></span>
-            <span>Time: <span id="time">20</span>s</span>
-        </div>
+            <span>Time: <span id="time">20</span>s</span> </div>
         
         <div id="game-board"></div>
 
         <div id="win-screen" style="display:none;">
-            <div class="voucher">
-                <h2 style="font-family:'Poppins'; font-size:1.5rem; margin:0; color:#d2691e;">OFFICIAL VOUCHER</h2>
-                <h1 style="color:#5d4037; font-size:2.5rem; margin:10px 0;">FREE CHOCOLATE</h1>
-                <p style="color:#666; font-size:0.9rem;">Redeemable anytime from your boyfriend.</p>
-                <div style="font-size:3rem;">🍫🎁</div>
-                <p style="font-size:0.8rem; margin-top:10px;">*Terms & Conditions: Must give a hug to redeem.</p>
-            </div>
+            <div style="font-size: 80px;">🏆</div>
+            <h2>You Won!</h2>
+            <p>You truly deserve a reward!</p>
+            <button class="btn" onclick="showVoucher()">🎁 Redeem Voucher</button>
             <br>
-            <button class="btn" onclick="location.reload()">Play Again</button>
+            <button class="btn" style="background: rgba(255,255,255,0.2);" onclick="location.reload()">Play Again</button>
+        </div>
+
+        <div id="voucher-popup" class="voucher-container">
+            <div class="voucher" id="printable-voucher">
+                <span class="close-voucher" onclick="closeVoucher()">&times;</span>
+                <div class="voucher-header">OFFICIAL COUPON</div>
+                <h1 style="font-family:'Dancing Script'; font-size: 3rem; margin: 10px 0; color: #d2691e;">Free Chocolate</h1>
+                <p>This voucher entitles <b>Kusum</b> to:</p>
+                <h3 style="margin: 10px 0;">ONE (1) Delicious Chocolate Bar 🍫</h3>
+                <p style="font-size: 0.9rem; color: #888;">Redeemable from: <b>Farhan</b></p>
+                <div style="margin: 20px 0; border-top: 2px dotted #ccc; padding-top: 10px;">
+                    <small>Valid until: Forever ❤️<br>Terms: Must be redeemed with a hug.</small>
+                </div>
+                <button class="btn print-btn" onclick="window.print()">🖨️ Print / Save</button>
+            </div>
         </div>
 
         <div id="lose-screen" style="display:none;">
@@ -134,7 +170,7 @@
 
     <script>
         let score = 0;
-        let timeLeft = 20;
+        let timeLeft = 20; // FIXED: 20s
         let gameInterval;
         let spawnInterval;
         let isPlaying = false;
@@ -151,13 +187,11 @@
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
         
         if (isMobile) {
-            // Mobile: Fast & Small (Fun chaos)
             SPAWN_RATE = 600;
-            STAY_DURATION = 800;
+            STAY_DURATION = 900;
             ITEM_SIZE = '4rem';
             document.getElementById('device-msg').innerText = "(Mobile Mode Detected: Fast Speed)";
         } else {
-            // Laptop: Slow & Big (Trackpad friendly)
             SPAWN_RATE = 600;
             STAY_DURATION = 1000;
             ITEM_SIZE = '4rem';
@@ -166,7 +200,7 @@
 
         function startGame() {
             score = 0;
-            timeLeft = 20;
+            timeLeft = 20; // FIXED: 20s
             isPlaying = true;
             document.getElementById('score').innerText = score;
             document.getElementById('time').innerText = timeLeft;
@@ -193,23 +227,16 @@
             const board = document.getElementById('game-board');
             const item = document.createElement('div');
             
-            // --- INCREASED ONION FREQUENCY ---
-            // Changed from 0.15 to 0.35
-            // Now 35% chance of Onion (approx 1 in 3 items)
-            const isGood = Math.random() > 0.35; 
-            
+            const isGood = Math.random() > 0.35; // 35% Bad Items (Onions)
             const content = isGood 
                 ? chocolates[Math.floor(Math.random() * chocolates.length)] 
                 : veggies[Math.floor(Math.random() * veggies.length)];
 
             item.classList.add('item');
             item.innerText = content;
-            
-            // Dynamic Size & Speed
             item.style.fontSize = ITEM_SIZE;
             item.style.setProperty('--duration', (STAY_DURATION/1000) + 's');
             
-            // Safe Position (Padding 10% to avoid edges)
             const x = Math.random() * 80 + 5; 
             const y = Math.random() * 70 + 10;
             item.style.left = x + '%';
@@ -224,15 +251,13 @@
         }
 
         function handleHit(e, item, isGood, x, y) {
-            e.stopPropagation(); 
-            e.preventDefault(); 
+            e.stopPropagation(); e.preventDefault(); 
             if (!isPlaying) return;
             
             if (isGood) {
                 score++;
                 showFloat("+1", x, y, "#ffd700");
             } else {
-                // Penalties
                 score = Math.max(0, score - 3);
                 showFloat("-3", x, y, "#ff4d4d");
                 const board = document.getElementById('game-board');
@@ -273,7 +298,14 @@
                 document.getElementById('lose-screen').style.display = 'block';
             }
         }
+
+        function showVoucher() {
+            document.getElementById('voucher-popup').style.display = 'flex';
+        }
+
+        function closeVoucher() {
+            document.getElementById('voucher-popup').style.display = 'none';
+        }
     </script>
 </body>
 </html>
-

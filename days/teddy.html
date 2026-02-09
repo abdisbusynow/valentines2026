@@ -4,76 +4,96 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Teddy Day 🧸</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            margin: 0; overflow: hidden; background: #1a1a1a;
-            font-family: 'Poppins', sans-serif;
+            margin: 0; overflow: hidden; 
+            background: radial-gradient(circle, #fff0f6 0%, #ffe3ec 100%);
+            font-family: 'Quicksand', sans-serif;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; color: white; user-select: none;
+            height: 100vh; color: #5c3a4d; user-select: none;
             touch-action: none;
+        }
+
+        /* --- DECORATIONS --- */
+        .bg-pattern {
+            position: absolute; width: 100%; height: 100%; opacity: 0.1;
+            background-image: radial-gradient(#ff9eb5 2px, transparent 2px);
+            background-size: 30px 30px; pointer-events: none;
         }
 
         .back-btn {
             position: absolute; top: 20px; left: 20px;
-            color: #aaa; text-decoration: none; font-weight: bold; font-size: 0.9rem;
-            border: 2px solid #aaa; padding: 5px 15px; border-radius: 20px;
+            color: #d81b60; text-decoration: none; font-weight: 700; font-size: 0.9rem;
+            background: white; padding: 8px 18px; border-radius: 25px;
+            box-shadow: 0 4px 10px rgba(216, 27, 96, 0.15); transition: transform 0.1s;
         }
+        .back-btn:active { transform: scale(0.95); }
 
-        h2 { margin-bottom: 5px; color: #ff6b6b; font-size: 2rem; letter-spacing: 2px; text-transform: uppercase; }
-        p { color: #888; font-size: 0.9rem; margin-bottom: 25px; }
+        h2 { 
+            margin-bottom: 5px; color: #ff4081; 
+            font-family: 'Fredoka One', cursive; font-size: 2.5rem; 
+            text-shadow: 2px 2px 0px white; letter-spacing: 1px;
+        }
+        p { color: #885c70; font-weight: 600; font-size: 1rem; margin-bottom: 20px; }
 
-        /* --- MACHINE --- */
+        /* --- CUTE MACHINE --- */
         .machine-container {
-            position: relative; width: 340px; height: 450px;
-            background: radial-gradient(circle, #333 0%, #111 100%);
-            border: 15px solid #ff6b6b; border-radius: 20px 20px 0 0;
-            box-shadow: 0 0 60px rgba(255, 107, 107, 0.2);
+            position: relative; width: 340px; height: 460px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 12px solid #ff80ab; border-radius: 40px 40px 15px 15px;
+            box-shadow: 
+                inset 0 0 40px rgba(255, 255, 255, 0.8),
+                0 10px 40px rgba(255, 128, 171, 0.3);
             overflow: hidden;
+            backdrop-filter: blur(5px);
         }
 
         /* --- CLAW --- */
         .claw-track {
-            position: absolute; top: 0; left: 0; width: 100%; height: 15px;
-            background: #222; z-index: 5;
-            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            position: absolute; top: 0; left: 0; width: 100%; height: 20px;
+            background: #fff; z-index: 5;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
         .claw-system {
-            position: absolute; top: 15px; left: 10px; width: 60px; height: 100%;
-            z-index: 20; /* High Z-index to sit on top */
-            pointer-events: none;
+            position: absolute; top: 20px; left: 10px; width: 60px; height: 100%;
+            z-index: 20; pointer-events: none;
         }
 
         .claw-rod {
-            width: 4px; height: 40px; background: #888; margin: 0 auto; 
+            width: 6px; height: 40px; background: #b0bec5; margin: 0 auto; 
+            border-radius: 0 0 5px 5px;
             transition: height 0.5s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .claw-hand {
-            width: 40px; height: 30px; margin: 0 auto;
-            border: 4px solid #aaa; border-top: none;
-            border-radius: 0 0 15px 15px; position: relative;
+            width: 44px; height: 35px; margin: 0 auto;
+            border: 5px solid #ff4081; border-top: none;
+            border-radius: 0 0 25px 25px; position: relative;
             transition: transform 0.2s;
         }
         .claw-hand::before, .claw-hand::after {
-            content: ''; position: absolute; top: -5px; width: 4px; height: 25px; background: #aaa;
+            content: ''; position: absolute; top: -6px; width: 5px; height: 30px; 
+            background: #ff4081; border-radius: 5px;
             transition: transform 0.2s;
         }
-        .claw-hand::before { left: -4px; transform: rotate(-25deg); transform-origin: top; }
-        .claw-hand::after { right: -4px; transform: rotate(25deg); transform-origin: top; }
+        .claw-hand::before { left: -5px; transform: rotate(-25deg); transform-origin: top; }
+        .claw-hand::after { right: -5px; transform: rotate(25deg); transform-origin: top; }
 
         /* --- BELT --- */
         .belt-container {
-            position: absolute; bottom: 30px; width: 100%; height: 80px;
-            border-bottom: 10px solid #444; background: #222; overflow: hidden;
+            position: absolute; bottom: 25px; width: 100%; height: 90px;
+            background: white; border-radius: 20px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden; margin: 0 auto; left: 0; right: 0; width: 90%;
         }
 
         .item {
-            position: absolute; bottom: 10px;
+            position: absolute; bottom: 15px;
             width: 70px; height: 70px; font-size: 3.5rem;
             display: flex; justify-content: center; align-items: center;
-            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.8));
+            filter: drop-shadow(0 3px 0px rgba(0,0,0,0.1));
             transition: opacity 0.2s;
         }
 
@@ -81,42 +101,52 @@
         .controls { margin-top: 25px; }
 
         .grab-btn {
-            width: 100px; height: 100px; border-radius: 50%;
-            background: #c0392b; border: 8px solid #922b21;
-            color: white; font-weight: 900; font-size: 1.5rem;
-            cursor: pointer; box-shadow: 0 15px 0 #581610;
-            transition: transform 0.05s, box-shadow 0.05s;
+            width: 90px; height: 90px; border-radius: 50%;
+            background: linear-gradient(135deg, #ff80ab, #ff4081);
+            border: 6px solid #fff;
+            color: white; font-family: 'Fredoka One', cursive; font-size: 1.2rem;
+            cursor: pointer; box-shadow: 0 8px 20px rgba(255, 64, 129, 0.4);
+            transition: transform 0.1s, box-shadow 0.1s;
             text-transform: uppercase; letter-spacing: 1px;
             -webkit-tap-highlight-color: transparent;
+            display: flex; align-items: center; justify-content: center;
         }
-        .grab-btn:active { transform: translateY(10px); box-shadow: 0 0 0 #581610; }
+        .grab-btn:active { transform: translateY(5px) scale(0.95); box-shadow: 0 4px 10px rgba(255, 64, 129, 0.4); }
 
         /* STATES */
-        .claw-rod.extend { height: 310px; }
-        .claw-hand.grab::before { transform: rotate(10deg); }
-        .claw-hand.grab::after { transform: rotate(-10deg); }
+        .claw-rod.extend { height: 320px; }
+        .claw-hand.grab::before { transform: rotate(8deg); }
+        .claw-hand.grab::after { transform: rotate(-8deg); }
         
-        .claw-hand.fail { border-color: #c0392b; animation: shake 0.4s; }
-        .claw-hand.fail::before, .claw-hand.fail::after { background: #c0392b; }
+        .claw-hand.fail { border-color: #ff5252; animation: shake 0.4s; }
+        .claw-hand.fail::before, .claw-hand.fail::after { background: #ff5252; }
         @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
 
         /* MODALS */
         .msg-box {
             display: none; position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%); text-align: center;
-            background: white; color: #333; padding: 25px; border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,1); z-index: 100; min-width: 280px;
-            border: 4px solid #333;
+            background: white; color: #5c3a4d; padding: 30px; border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(92, 58, 77, 0.2); z-index: 100; min-width: 280px;
+            border: 6px solid #ff80ab;
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        @keyframes popIn { from { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+
         .retry-btn {
-            background: #333; color: white; border: none; padding: 12px 30px;
-            border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase;
+            background: #ff4081; color: white; border: none; padding: 12px 30px;
+            border-radius: 25px; font-weight: 700; cursor: pointer; text-transform: uppercase;
+            font-family: 'Quicksand', sans-serif; box-shadow: 0 4px 10px rgba(255, 64, 129, 0.3);
+            transition: transform 0.1s;
         }
-        .roast-text { color: #c0392b; font-style: italic; font-size: 0.85rem; margin-bottom: 20px; }
+        .retry-btn:active { transform: scale(0.95); }
+        
+        .roast-text { color: #ff5252; font-style: italic; font-weight: 600; font-size: 0.9rem; margin-bottom: 25px; }
     </style>
 </head>
 <body>
 
+    <div class="bg-pattern"></div>
     <a href="../index.html" class="back-btn">← Back</a>
 
     <h2>Teddy Grab</h2>
@@ -137,17 +167,17 @@
         <button class="grab-btn" onclick="dropClaw()">DROP</button>
     </div>
 
-    <div id="win-msg" class="msg-box" style="border-color: #27ae60;">
-        <div style="font-size: 60px;">🧸❤️</div>
-        <h2 style="color: #27ae60; margin:0;">GOTCHA!</h2>
-        <p>You caught the Teddy!<br>Happy Teddy Day! ❤️</p>
-        <button class="retry-btn" onclick="location.reload()" style="background: #27ae60;">Play Again</button>
+    <div id="win-msg" class="msg-box" style="border-color: #00e676;">
+        <div style="font-size: 60px; margin-bottom: 10px;">🧸❤️</div>
+        <h2 style="color: #00e676; margin:0; font-size: 2rem;">GOTCHA!</h2>
+        <p style="margin: 10px 0 20px 0;">You caught the Teddy!<br>Happy Teddy Day! ❤️</p>
+        <button class="retry-btn" onclick="location.reload()" style="background: #00e676;">Play Again</button>
     </div>
 
     <div id="lose-msg" class="msg-box">
-        <div style="font-size: 60px;" id="lose-icon">☠️</div>
-        <h2 style="margin:0;" id="lose-title">OOPS!</h2>
-        <p id="lose-text" style="margin-bottom: 5px;">You caught something!</p>
+        <div style="font-size: 60px; margin-bottom: 10px;" id="lose-icon">🐼</div>
+        <h2 style="margin:0; color: #ff5252;" id="lose-title">OOPS</h2>
+        <p id="lose-text" style="margin: 5px 0 5px 0; color: #5c3a4d;">You caught something.</p>
         <p class="roast-text" id="roast-text">Try again.</p>
         <button class="retry-btn" onclick="retry()">Try Again</button>
     </div>
@@ -157,11 +187,10 @@
         let isPlaying = true;
         let clawPos = 10;
         let clawDirection = 1;
-        let clawSpeed = 2; // Starting speed
+        let clawSpeed = 3; 
         let items = [];
         
         // Constants
-        const BELT_WIDTH = 340;
         const ITEM_SPACING = 80; 
         const CLAW_MIN = 10;
         const CLAW_MAX = 270;
@@ -202,28 +231,31 @@
         function gameLoop() {
             if (!isPlaying) return;
 
-            // 1. UPDATE CLAW (Troll Logic)
-            // Randomly change speed slightly to be tricky
-            if (Math.random() < 0.05) {
-                clawSpeed = Math.random() * 3 + 1.5; // Speed between 1.5 and 4.5
-            }
+            // 1. UPDATE CLAW
+            // Challenge: Variable Speed (Sine Wave for predictability + speed)
+            // This makes it "Skill" not "Luck". She can time the rhythm.
+            if (clawPos < 50 || clawPos > 220) clawSpeed = 2; // Slow at edges
+            else clawSpeed = 5; // Fast in middle
             
             clawPos += clawSpeed * clawDirection;
 
             // Bounce off walls
-            if (clawPos >= CLAW_MAX || clawPos <= CLAW_MIN) {
-                clawDirection *= -1;
+            if (clawPos >= CLAW_MAX) {
+                clawPos = CLAW_MAX;
+                clawDirection = -1;
+            } else if (clawPos <= CLAW_MIN) {
+                clawPos = CLAW_MIN;
+                clawDirection = 1;
             }
 
             document.getElementById('claw').style.left = clawPos + 'px';
 
-            // 2. UPDATE BELT (Constant Speed)
+            // 2. UPDATE BELT (Faster Constant Speed for challenge)
             items.forEach(item => {
-                item.x -= 1.5; // Speed of belt
+                item.x -= 3; // Increased speed
 
                 // Wrap around logic
                 if (item.x < -70) {
-                    // Find the furthest item to place behind
                     const maxX = Math.max(...items.map(i => i.x));
                     item.x = maxX + ITEM_SPACING;
                 }
@@ -237,7 +269,7 @@
         // --- PLAYER ACTION ---
         function dropClaw() {
             if (!isPlaying) return;
-            isPlaying = false; // Pause loop
+            isPlaying = false; // Pause loop instantly (Freeze Frame)
 
             const rod = document.getElementById('rod');
             const hand = document.getElementById('hand');
@@ -253,19 +285,35 @@
         }
 
         function checkCollision() {
-            // Claw Center (Left + Half Width)
-            const clawCenter = clawPos + 30; 
+            // 1. Get Absolute Coordinates using getBoundingClientRect()
+            // This fixes the bug where visual position didn't match logic
+            const hand = document.getElementById('hand');
+            const handRect = hand.getBoundingClientRect();
+            const handCenter = handRect.left + (handRect.width / 2);
 
             let caughtItem = null;
+            let minDistance = 9999;
 
-            // Check distance to every item
-            items.forEach(item => {
-                const itemCenter = item.x + 35; // Item width is ~70
-                const distance = Math.abs(clawCenter - itemCenter);
+            // 2. Check every visible item
+            const domItems = document.querySelectorAll('.item');
+            
+            domItems.forEach(itemEl => {
+                const itemRect = itemEl.getBoundingClientRect();
+                const itemCenter = itemRect.left + (itemRect.width / 2);
+                
+                // Distance between centers
+                const distance = Math.abs(handCenter - itemCenter);
 
-                // Hitbox: 25px radius
-                if (distance < 25) {
-                    caughtItem = item;
+                // Hitbox: 20px radius (Challenging but fair)
+                if (distance < 20) {
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        // Find the data object corresponding to this element
+                        caughtItem = {
+                            el: itemEl,
+                            type: itemEl.innerText
+                        };
+                    }
                 }
             });
 
@@ -280,17 +328,18 @@
             const rod = document.getElementById('rod');
             
             // 1. Visual Clone logic
-            // We create a clone attached to the claw so it moves up with it
+            const rect = itemObj.el.getBoundingClientRect();
             const clone = document.createElement('div');
             clone.innerText = itemObj.type;
             clone.className = 'item';
-            clone.style.position = 'absolute';
-            clone.style.left = (clawPos + 5) + 'px'; // Center on claw
-            clone.style.bottom = '10px'; // Bottom of belt
+            // Set fixed position based on screen
+            clone.style.position = 'fixed'; 
+            clone.style.left = rect.left + 'px';
+            clone.style.top = rect.top + 'px';
             clone.style.zIndex = 100;
-            clone.style.transition = 'bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1)'; // Match rod retract speed
+            clone.style.transition = 'top 0.5s cubic-bezier(0.25, 1, 0.5, 1)'; 
             
-            document.querySelector('.machine-container').appendChild(clone);
+            document.body.appendChild(clone);
 
             // Hide original
             itemObj.el.style.opacity = 0;
@@ -299,8 +348,9 @@
             setTimeout(() => {
                 rod.classList.remove('extend');
                 
-                // Move clone up
-                clone.style.bottom = '300px'; 
+                // Move clone up relative to rod retraction
+                const handRect = document.getElementById('hand').getBoundingClientRect();
+                clone.style.top = (handRect.top - 200) + 'px'; // Move up
 
                 // 3. Show Result
                 setTimeout(() => {
@@ -325,7 +375,7 @@
                 hand.classList.remove('grab');
                 
                 setTimeout(() => {
-                    showLose('Uh oh!');
+                    showLose('☠️');
                 }, 500);
             }, 500);
         }
@@ -338,8 +388,8 @@
             
             document.getElementById('lose-icon').innerText = icon;
 
-            if (icon === 'Uh oh!') {
-                title.innerText = "MISSED!";
+            if (icon === '☠️') {
+                title.innerText = "Shei!";
                 text.innerText = "You caught...Nothing!";
                 roast.innerText = "Nice aim, Sniper!";
             } else if (icon === '🐓') {
@@ -349,7 +399,7 @@
             } else if (icon === '🍑') {
                 title.innerText = "Oh No!";
                 text.innerText = "Ik that's soft and squishy too!";
-                roast.innerText = "But that doesn't make it a bear!";
+                roast.innerText = "But that doesn't make it a teddy bear!";
             } else if (icon === '🍒') {
                 title.innerText = "Ahha!";
                 text.innerText = "That's Tiddy, not Teddy!";

@@ -22,24 +22,28 @@
             background-size: 30px 30px; pointer-events: none;
         }
 
+        /* --- BACK BUTTON (Fixed Style & Position) --- */
         .back-btn {
             position: absolute; top: 20px; left: 20px;
             color: #d81b60; text-decoration: none; font-weight: 700; font-size: 0.9rem;
-            background: white; padding: 8px 18px; border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9); padding: 10px 20px; border-radius: 25px;
             box-shadow: 0 4px 10px rgba(216, 27, 96, 0.15); transition: transform 0.1s;
+            z-index: 1000; /* Ensures it sits ON TOP of everything */
+            border: 2px solid #ff80ab;
         }
         .back-btn:active { transform: scale(0.95); }
 
         h2 { 
             margin-bottom: 5px; color: #ff4081; 
-            font-family: 'Fredoka One', cursive; font-size: 2.5rem; 
+            font-family: 'Fredoka One', cursive; font-size: 2.2rem; 
             text-shadow: 2px 2px 0px white; letter-spacing: 1px;
+            margin-top: 40px; /* Added spacing for mobile */
         }
-        p { color: #885c70; font-weight: 600; font-size: 1rem; margin-bottom: 20px; }
+        p { color: #885c70; font-weight: 600; font-size: 0.9rem; margin-bottom: 15px; }
 
         /* --- CUTE MACHINE --- */
         .machine-container {
-            position: relative; width: 340px; height: 460px;
+            position: relative; width: 320px; height: 440px; /* Slightly smaller for mobile safety */
             background: rgba(255, 255, 255, 0.6);
             border: 12px solid #ff80ab; border-radius: 40px 40px 15px 15px;
             box-shadow: 
@@ -98,7 +102,7 @@
         }
 
         /* --- CONTROLS --- */
-        .controls { margin-top: 25px; }
+        .controls { margin-top: 20px; }
 
         .grab-btn {
             width: 90px; height: 90px; border-radius: 50%;
@@ -127,7 +131,7 @@
             display: none; position: absolute; top: 50%; left: 50%;
             transform: translate(-50%, -50%); text-align: center;
             background: white; color: #5c3a4d; padding: 30px; border-radius: 30px;
-            box-shadow: 0 20px 60px rgba(92, 58, 77, 0.2); z-index: 100; min-width: 280px;
+            box-shadow: 0 20px 60px rgba(92, 58, 77, 0.2); z-index: 200; min-width: 280px;
             border: 6px solid #ff80ab;
             animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -187,7 +191,7 @@
         let isPlaying = true;
         let clawPos = 10;
         let clawDirection = 1;
-        let clawSpeed = 3; 
+        let clawSpeed = 2; // Starting speed
         let items = [];
         
         // Constants
@@ -231,15 +235,15 @@
         function gameLoop() {
             if (!isPlaying) return;
 
-            // 1. UPDATE CLAW
-            // Challenge: Variable Speed (Sine Wave for predictability + speed)
-            // This makes it "Skill" not "Luck". She can time the rhythm.
-            if (clawPos < 50 || clawPos > 220) clawSpeed = 2; // Slow at edges
-            else clawSpeed = 5; // Fast in middle
+            // 1. UPDATE CLAW (Variable Speed for Challenge)
+            if (Math.random() < 0.03) {
+                clawSpeed = Math.random() * 5 + 2; 
+            } else if (Math.random() < 0.05) {
+                clawSpeed = 1.5;
+            }
             
             clawPos += clawSpeed * clawDirection;
 
-            // Bounce off walls
             if (clawPos >= CLAW_MAX) {
                 clawPos = CLAW_MAX;
                 clawDirection = -1;
@@ -250,9 +254,9 @@
 
             document.getElementById('claw').style.left = clawPos + 'px';
 
-            // 2. UPDATE BELT (Faster Constant Speed for challenge)
+            // 2. UPDATE BELT
             items.forEach(item => {
-                item.x -= 3; // Increased speed
+                item.x -= 2.5; 
 
                 // Wrap around logic
                 if (item.x < -70) {
@@ -269,7 +273,7 @@
         // --- PLAYER ACTION ---
         function dropClaw() {
             if (!isPlaying) return;
-            isPlaying = false; // Pause loop instantly (Freeze Frame)
+            isPlaying = false; // Pause loop
 
             const rod = document.getElementById('rod');
             const hand = document.getElementById('hand');
@@ -277,7 +281,7 @@
             // Drop Animation
             rod.classList.add('extend');
 
-            // Wait for drop (500ms match transition)
+            // Wait for drop
             setTimeout(() => {
                 hand.classList.add('grab');
                 checkCollision();
@@ -286,7 +290,6 @@
 
         function checkCollision() {
             // 1. Get Absolute Coordinates using getBoundingClientRect()
-            // This fixes the bug where visual position didn't match logic
             const hand = document.getElementById('hand');
             const handRect = hand.getBoundingClientRect();
             const handCenter = handRect.left + (handRect.width / 2);
@@ -304,11 +307,11 @@
                 // Distance between centers
                 const distance = Math.abs(handCenter - itemCenter);
 
-                // Hitbox: 20px radius (Challenging but fair)
+                // Hitbox: 20px radius
                 if (distance < 20) {
                     if (distance < minDistance) {
                         minDistance = distance;
-                        // Find the data object corresponding to this element
+                        // Find data object
                         caughtItem = {
                             el: itemEl,
                             type: itemEl.innerText
@@ -327,12 +330,11 @@
         function liftItem(itemObj) {
             const rod = document.getElementById('rod');
             
-            // 1. Visual Clone logic
+            // Visual Clone
             const rect = itemObj.el.getBoundingClientRect();
             const clone = document.createElement('div');
             clone.innerText = itemObj.type;
             clone.className = 'item';
-            // Set fixed position based on screen
             clone.style.position = 'fixed'; 
             clone.style.left = rect.left + 'px';
             clone.style.top = rect.top + 'px';
@@ -344,15 +346,13 @@
             // Hide original
             itemObj.el.style.opacity = 0;
 
-            // 2. Retract Rod
+            // Retract
             setTimeout(() => {
                 rod.classList.remove('extend');
                 
-                // Move clone up relative to rod retraction
                 const handRect = document.getElementById('hand').getBoundingClientRect();
-                clone.style.top = (handRect.top - 200) + 'px'; // Move up
+                clone.style.top = (handRect.top - 200) + 'px'; 
 
-                // 3. Show Result
                 setTimeout(() => {
                     if (itemObj.type === '🧸') {
                         document.getElementById('win-msg').style.display = 'block';
@@ -395,15 +395,15 @@
             } else if (icon === '🐓') {
                 title.innerText = "OOPS!";
                 text.innerText = "You caught a cock!";
-                roast.innerText = "(Can redeem it in the dm tho!)";
+                roast.innerText = "Can redeem it in the dm tho!";
             } else if (icon === '🍑') {
                 title.innerText = "Oh No!";
                 text.innerText = "Ik that's soft and squishy too!";
-                roast.innerText = "But that doesn't make it a teddy bear!";
+                roast.innerText = "But that doesn't make it a Teddy Bear!";
             } else if (icon === '🍒') {
                 title.innerText = "Ahha!";
                 text.innerText = "That's Tiddy, not Teddy!";
-                roast.innerText = "Now you owe me a pair of it!";
+                roast.innerText = "Now you owe me a pair of those!";
             }
 
             modal.style.display = 'block';
@@ -415,16 +415,13 @@
             document.getElementById('hand').classList.remove('grab');
             document.getElementById('hand').classList.remove('fail');
             
-            // Show items again
             document.querySelectorAll('.item').forEach(el => el.style.opacity = 1);
 
             isPlaying = true;
             requestAnimationFrame(gameLoop);
         }
 
-        // Start
         initGame();
-
     </script>
 </body>
 </html>

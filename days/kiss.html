@@ -10,9 +10,8 @@
         body {
             margin: 0; padding: 0; overflow: hidden;
             background: linear-gradient(to bottom, #fdfbf7 0%, #fae3d9 100%);
-            font-family: 'Nunito', sans-serif; /* Soft rounded font */
-            touch-action: none; 
-            user-select: none;
+            font-family: 'Nunito', sans-serif;
+            touch-action: none; user-select: none;
         }
 
         .back-btn {
@@ -25,7 +24,7 @@
 
         .score-display {
             position: absolute; top: 12%; left: 50%; transform: translateX(-50%);
-            font-family: 'Fredoka One', cursive; /* Bubbly Heading Font */
+            font-family: 'Fredoka One', cursive; 
             font-size: 5rem; color: #ff8a80;
             opacity: 0.6; z-index: 5; pointer-events: none;
             letter-spacing: 2px;
@@ -37,7 +36,7 @@
             text-transform: uppercase;
         }
 
-        /* GLASSMORPHISM UI */
+        /* UI STYLES */
         .start-screen, .modal {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -55,25 +54,19 @@
         }
         @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
 
-        h1 { 
-            margin: 10px 0; color: #d81b60; 
-            font-family: 'Fredoka One', cursive;
-            font-size: 2.5rem; letter-spacing: 1px;
-        }
+        h1 { margin: 10px 0; color: #d81b60; font-family: 'Fredoka One', cursive; font-size: 2.5rem; letter-spacing: 1px; }
         p { color: #90a4ae; margin: 10px 0 25px; font-size: 1.1rem; line-height: 1.5; font-weight: 700; }
 
         .btn {
             background: #ff8a80; color: white; border: none; padding: 15px 45px;
             border-radius: 50px; font-weight: 800; cursor: pointer; font-size: 1.1rem;
             box-shadow: 0 10px 25px rgba(255, 138, 128, 0.4);
-            transition: transform 0.1s; letter-spacing: 1px; 
-            font-family: 'Nunito', sans-serif;
+            transition: transform 0.1s; letter-spacing: 1px; font-family: 'Nunito', sans-serif;
             position: relative; z-index: 50; 
         }
         .btn:active { transform: scale(0.95); }
 
         .modal { display: none; z-index: 100; }
-        
         .reward-img { width: 100%; height: auto; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .coupon-card { background: #fff5f5; border: 2px dashed #ff8a80; padding: 25px; border-radius: 20px; margin-bottom: 20px; }
 
@@ -127,7 +120,7 @@
         let gameLoopId;
         let inputLocked = false;
 
-        // --- BACKGROUND PARTICLES ---
+        // --- PARTICLES ---
         const particles = [];
         function initParticles() {
             particles.length = 0;
@@ -151,10 +144,8 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotation);
-                ctx.shadowColor = "rgba(255, 138, 128, 0.4)";
-                ctx.shadowBlur = 15;
-                // Font Update
-                ctx.font = "40px 'Fredoka One', cursive";
+                // PERFORMANCE FIX: Removed shadowBlur
+                ctx.font = "40px 'Fredoka One'";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText("💋", 0, 0);
@@ -182,22 +173,21 @@
             x: -200, y: 0, active: false,
             spawn: function(lastPipeX) {
                 this.active = true;
-                this.x = lastPipeX + 320; 
+                this.x = lastPipeX + 320; // Distance
                 this.y = height / 2;
             },
             draw: function() {
                 if(!this.active) return;
                 ctx.save();
-                // Font Update
+                // PERFORMANCE FIX: Removed shadowBlur
                 ctx.font = "40px 'Fredoka One'";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText("💋", this.x, this.y);
                 
-                // Font Update
                 ctx.font = "800 16px 'Nunito'";
                 ctx.fillStyle = "#ff8a80";
-                ctx.fillText("Hit Me!", this.x, this.y - 60);
+                ctx.fillText("Hit Me!", this.x, this.y - 50);
                 ctx.restore();
             },
             update: function() {
@@ -317,10 +307,7 @@
         init();
 
         const startBtn = document.getElementById('startBtn');
-        function triggerStart(e) {
-            e.stopPropagation(); 
-            startGame();
-        }
+        function triggerStart(e) { e.stopPropagation(); startGame(); }
         startBtn.addEventListener('click', triggerStart);
         startBtn.addEventListener('touchstart', triggerStart);
 
@@ -334,9 +321,7 @@
 
         function handleInput(e) {
             if(e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-            if (e.type === 'touchstart' || e.code === 'Space') {
-                if(e.cancelable) e.preventDefault();
-            }
+            if (e.type === 'touchstart' || e.code === 'Space') { if(e.cancelable) e.preventDefault(); }
             if (inputLocked) return;
             if(currentState === 'play') bird.flap();
             else if(currentState === 'gameover') startGame();
@@ -442,7 +427,6 @@
 
             ctx.textAlign = "center";
             
-            // Fonts updated for Coupon too
             ctx.fillStyle = "#d81b60";
             ctx.font = "60px 'Fredoka One'"; 
             ctx.fillText("💋 KISS COUPON 💋", 400, 130);

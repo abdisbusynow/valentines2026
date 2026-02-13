@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kiss Day 💋</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&family=Fredoka+One&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            margin: 0; padding: 0; overflow: hidden;
+            /* Warm Pastel Gradient Background */
+            background: linear-gradient(to bottom, #fdfbf7 0%, #fae3d9 100%);
+            font-family: 'Nunito', sans-serif;
+            touch-action: manipulation; user-select: none;
+        }
+
+        .back-btn {
+            position: absolute; top: 20px; left: 20px; pointer-events: auto;
+            text-decoration: none; background: rgba(255, 255, 255, 0.8); 
+            padding: 10px 25px; border-radius: 50px; font-weight: 700; color: #d81b60;
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.1); z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        .score-display {
+            position: absolute; top: 12%; left: 50%; transform: translateX(-50%);
+            font-family: 'Fredoka One', cursive; 
+            font-size: 5rem; color: #ff8a80;
+            opacity: 0.6; z-index: 5; pointer-events: none;
+            letter-spacing: 2px;
+        }
+        
+        .goal-text {
+            position: absolute; top: 24%; left: 50%; transform: translateX(-50%);
+            color: #90a4ae; font-weight: 800; font-size: 1.1rem; letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* GLASSMORPHISM UI */
+        .start-screen, .modal {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.4); z-index: 20;
+            backdrop-filter: blur(8px);
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px; border-radius: 40px; text-align: center;
+            box-shadow: 0 20px 50px rgba(233, 30, 99, 0.15);
+            border: 1px solid white;
+            animation: float 4s infinite ease-in-out;
+            max-width: 85%; width: 320px;
+        }
+        @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-15px);} }
+
+        h1 { 
+            margin: 10px 0; color: #d81b60; 
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem; letter-spacing: 1px;
+        }
+        p { color: #90a4ae; margin: 10px 0 25px; font-size: 1.1rem; line-height: 1.5; font-weight: 700; }
+
+        .btn {
+            background: #ff8a80; color: white; border: none; padding: 15px 45px;
+            border-radius: 50px; font-weight: 800; cursor: pointer; font-size: 1.1rem;
+            box-shadow: 0 10px 25px rgba(255, 138, 128, 0.4);
+            transition: transform 0.1s; letter-spacing: 1px; 
+            font-family: 'Nunito', sans-serif;
+        }
+        .btn:active { transform: scale(0.95); }
+
+        .modal { display: none; z-index: 100; }
+        
+        .reward-img { width: 100%; height: auto; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .coupon-card { background: #fff5f5; border: 2px dashed #ff8a80; padding: 25px; border-radius: 20px; margin-bottom: 20px; }
+
+        canvas { display: block; width: 100%; height: 100vh; }
+    </style>
+</head>
+<body>
+
+    <audio id="winSound" src="../win.mp3" preload="auto"></audio>
+
+    <a href="../index.html" class="back-btn">Back</a>
+
+    <div class="score-display" id="score">0</div>
+    <div class="goal-text" id="goalText">Pass 13 Pillars</div>
+
+    <div class="start-screen" id="startScreen">
+        <div class="card">
+            <h1>Kiss Hunt</h1>
+            <p>Pass <b>13 stone pillars</b><br>to get the kiss!</p>
+            <button class="btn" id="startBtn">Let's Go</button>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="modal" id="winModal">
+        <div class="card" style="animation: popIn 0.5s;">
+            <h3 style="color:#d81b60; margin:0 0 15px; font-family:'Fredoka One'; font-size: 1.8rem;">Happy Kiss Day!</h3>
+            <img src="../kiss.jpg" class="reward-img" alt="Kiss Reward" onerror="this.src='https://placehold.co/600x400/ff8a80/ffffff?text=Our+Kiss+Photo'">
+            <div class="coupon-card">
+                <div style="font-weight:900; color:#d81b60; font-size: 1.2rem; font-family: 'Fredoka One';">🎟️ KISS COUPON</div>
+                <div style="font-size:1rem; color:#ef5350; margin-top:5px; font-weight: 700;">Valid for: One Long Kiss</div>
+            </div>
+            <button class="btn" onclick="downloadCoupon()" style="padding: 12px 30px;">Save Coupon</button>
+            <div style="margin-top: 15px;">
+                <button onclick="location.reload()" style="background:none; border:none; color:#90a4ae; cursor:pointer; font-weight: 800; font-family: 'Nunito';">Replay</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const TARGET_PIPES = 13;
+        let width, height;
+        let frames = 0;
+        let score = 0;
+        let pipesSpawned = 0;
+        let currentState = 'start'; 
+        let gameLoopId;
+        let inputLocked = false;
+
+        // --- PARTICLES ---
+        const particles = [];
+        function initParticles() {
+            particles.length = 0;
+            for(let i=0; i<15; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    r: Math.random() * 4 + 1,
+                    speed: Math.random() * 0.5 + 0.1,
+                    opacity: Math.random() * 0.5
+                });
+            }
+        }
+        
+        // --- BIRD ---
+        const bird = {
+            x: 80, y: 150, width: 40, height: 30, radius: 14, 
+            velocity: 0, gravity: 0.12, jump: 3.5, rotation: 0,
+            
+            draw: function() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.shadowColor = "rgba(255, 138, 128, 0.4)";
+                ctx.shadowBlur = 15;
+                ctx.font = "40px 'Fredoka One', cursive";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("💋", 0, 0);
+                ctx.restore();
+            },
+            update: function() {
+                this.velocity += this.gravity;
+                this.y += this.velocity;
+                if(this.velocity < 0) this.rotation = -0.2;
+                else if(this.velocity > 0) {
+                    this.rotation += 0.02;
+                    if(this.rotation > 0.4) this.rotation = 0.4;
+                }
+                
+                if(this.y >= height) gameOver("Gravity Won", "You fell, babe!");
+                if(this.y <= 0) { this.y = 0; this.velocity = 0; }
+            },
+            flap: function() {
+                this.velocity = -this.jump;
+            }
+        };
+
+        // --- TARGET LIPS ---
+        const targetLips = {
+            x: -200, y: 0, active: false,
+            spawn: function(lastPipeX) {
+                this.active = true;
+                this.x = lastPipeX + 320; 
+                this.y = height / 2;
+            },
+            draw: function() {
+                if(!this.active) return;
+                ctx.save();
+                ctx.font = "40px 'Fredoka One'";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("💋", this.x, this.y);
+                
+                ctx.font = "800 16px 'Nunito'";
+                ctx.fillStyle = "#ff8a80";
+                ctx.fillText("MY LIPS", this.x, this.y - 60);
+                ctx.restore();
+            },
+            update: function() {
+                if(!this.active) return;
+                let speed = (score >= 7) ? 2.5 : 1.8;
+                this.x -= speed;
+                
+                if(Math.hypot(bird.x - this.x, bird.y - this.y) < 60) {
+                    winGame();
+                }
+
+                if(this.x < -50) {
+                    gameOver("Too Late! 💔", "You flew past my lips!");
+                }
+            }
+        };
+
+        // --- PILLARS ---
+        const pipes = {
+            items: [], w: 65, dx: 1.8, gap: 230, 
+            timer: 0, 
+            
+            draw: function() {
+                const stoneLight = "#e6ccb3"; 
+                const stoneDark = "#cbb29a"; 
+
+                ctx.fillStyle = stoneLight;
+                ctx.strokeStyle = stoneDark;
+                ctx.lineWidth = 2;
+                
+                for(let i=0; i<this.items.length; i++) {
+                    let p = this.items[i];
+                    
+                    // --- TOP PILLAR ---
+                    ctx.fillRect(p.x, 0, this.w, p.top);
+                    ctx.strokeRect(p.x, 0, this.w, p.top);
+                    
+                    ctx.beginPath();
+                    for(let j=1; j<=3; j++) {
+                        let lineX = p.x + (this.w / 4) * j;
+                        ctx.moveTo(lineX, 0); ctx.lineTo(lineX, p.top);
+                    }
+                    ctx.stroke();
+
+                    // --- BOTTOM PILLAR ---
+                    ctx.fillRect(p.x, height - p.bottom, this.w, p.bottom);
+                    ctx.strokeRect(p.x, height - p.bottom, this.w, p.bottom);
+
+                    ctx.beginPath();
+                    for(let j=1; j<=3; j++) {
+                        let lineX = p.x + (this.w / 4) * j;
+                        ctx.moveTo(lineX, height - p.bottom); ctx.lineTo(lineX, height);
+                    }
+                    ctx.stroke();
+                }
+            },
+            update: function() {
+                if(score >= 7) { 
+                    this.dx = 2.5; 
+                    this.gap = 180; 
+                } else { 
+                    this.dx = 1.8; 
+                    this.gap = 230; 
+                }
+
+                let threshold = 320 / this.dx;
+
+                if(pipesSpawned < TARGET_PIPES) {
+                    this.timer++;
+                    if(this.timer >= threshold) {
+                        this.timer = 0; 
+                        
+                        let available = height - this.gap;
+                        let topH = Math.random() * (available - 150) + 75; 
+                        let bottomH = available - topH;
+                        this.items.push({ x: width, top: topH, bottom: bottomH, passed: false });
+                        pipesSpawned++;
+                        if(pipesSpawned === TARGET_PIPES) targetLips.spawn(width);
+                    }
+                }
+
+                for(let i=0; i<this.items.length; i++) {
+                    let p = this.items[i];
+                    p.x -= this.dx;
+
+                    let padding = 8;
+                    if(bird.x + bird.radius - padding > p.x && bird.x - bird.radius + padding < p.x + this.w) {
+                        if(bird.y - bird.radius + padding < p.top) gameOver("Hit a Pillar");
+                        if(bird.y + bird.radius - padding > height - p.bottom) gameOver("Hit a Pillar");
+                    }
+
+                    if(p.x + this.w < bird.x - bird.radius && !p.passed) {
+                        score++;
+                        document.getElementById('score').innerText = score;
+                        p.passed = true;
+                        
+                        if(score === 7) {
+                            const goal = document.getElementById('goalText');
+                            goal.innerText = "IT'S GETTING FASTER!";
+                            goal.style.color = "#d81b60";
+                        }
+                    }
+
+                    if(p.x + this.w < 0) { this.items.shift(); i--; }
+                }
+            }
+        };
+
+        function init() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initParticles();
+            reset();
+        }
+        window.addEventListener('resize', init);
+        
+        function reset() {
+            bird.y = height / 2; bird.velocity = 0; bird.rotation = 0; 
+            pipes.items = []; 
+            pipes.timer = 200; 
+            score = 0; pipesSpawned = 0; frames = 0;
+            targetLips.active = false;
+            document.getElementById('score').innerText = score;
+            document.getElementById('goalText').innerText = "PASS 13 PILLARS";
+            document.getElementById('goalText').style.color = "#90a4ae";
+            frames = -50; 
+        }
+        init();
+
+        document.getElementById('startBtn').addEventListener('click', (e) => {
+            e.stopPropagation(); startGame();
+        });
+
+        function startGame() {
+            if (currentState === 'play' || inputLocked) return;
+            document.getElementById('startScreen').style.display = 'none';
+            currentState = 'play';
+            reset();
+            loop();
+        }
+
+        function handleInput(e) {
+            if(inputLocked) return;
+            if(e.target.tagName === 'BUTTON') return;
+            if (e.type === 'keydown' && e.code !== 'Space') return;
+            if (e.type === 'keydown') e.preventDefault(); 
+            if(currentState === 'play') bird.flap();
+            else if(currentState === 'gameover') startGame();
+        }
+
+        window.addEventListener('mousedown', handleInput);
+        window.addEventListener('touchstart', (e) => { e.preventDefault(); handleInput(e); }, {passive: false});
+        window.addEventListener('keydown', handleInput);
+
+        function update() {
+            bird.update();
+            pipes.update();
+            targetLips.update();
+            particles.forEach(p => {
+                p.y -= p.speed;
+                if(p.y < 0) p.y = height;
+            });
+            frames++;
+        }
+
+        function draw() {
+            ctx.clearRect(0,0,width,height);
+            ctx.fillStyle = "#ff8a80";
+            particles.forEach(p => {
+                ctx.globalAlpha = p.opacity;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            pipes.draw();
+            targetLips.draw();
+            bird.draw();
+        }
+
+        function loop() {
+            if(currentState === 'play') {
+                update();
+                draw();
+                gameLoopId = requestAnimationFrame(loop);
+            }
+        }
+
+        function gameOver(title = "Hit a Pillar", subMsg = null) {
+            if(currentState === 'gameover') return;
+            currentState = 'gameover';
+            cancelAnimationFrame(gameLoopId);
+            inputLocked = true; 
+            const finalScore = score; 
+            const startScreen = document.getElementById('startScreen');
+            startScreen.style.background = "rgba(255,0,0,0.15)"; 
+            startScreen.style.display = 'flex';
+            const card = startScreen.querySelector('.card');
+            card.style.animation = "none";
+            void card.offsetWidth; 
+            card.style.animation = "float 4s infinite ease-in-out";
+            
+            startScreen.querySelector('h1').innerText = title;
+            
+            if (subMsg) {
+                startScreen.querySelector('p').innerHTML = subMsg;
+            } else {
+                startScreen.querySelector('p').innerHTML = "Try again, love.<br>Score: " + finalScore + " / " + TARGET_PIPES;
+            }
+            
+            startScreen.querySelector('button').innerText = "Restart";
+            setTimeout(() => { inputLocked = false; startScreen.style.background = "rgba(255,255,255,0.4)"; }, 600);
+        }
+
+        function winGame() {
+            if(currentState === 'win') return;
+            currentState = 'win';
+            cancelAnimationFrame(gameLoopId);
+            
+            // PLAY AUDIO ON WIN
+            const sound = document.getElementById('winSound');
+            if(sound) sound.play().catch(e => console.log("Audio play failed:", e));
+
+            document.getElementById('winModal').style.display = 'flex';
+            confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 }, colors: ['#ff8a80', '#ffcdd2'] });
+        }
+
+        function downloadCoupon() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800; canvas.height = 400; 
+            const ctx = canvas.getContext('2d');
+
+            // 1. Background
+            let grd = ctx.createLinearGradient(0, 0, 800, 400);
+            grd.addColorStop(0, "#fdfbf7");
+            grd.addColorStop(1, "#fae3d9");
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, 800, 400);
+
+            // 2. Border
+            ctx.strokeStyle = "#ff8a80";
+            ctx.lineWidth = 10;
+            ctx.strokeRect(20, 20, 760, 360);
+            
+            // 3. Inner Card
+            ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.fillRect(40, 40, 720, 320);
+
+            // 4. Dashed Line
+            ctx.strokeStyle = "#d81b60";
+            ctx.lineWidth = 3;
+            ctx.setLineDash([15, 10]);
+            ctx.strokeRect(50, 50, 700, 300);
+            ctx.setLineDash([]);
+
+            // 5. Text
+            ctx.textAlign = "center";
+            
+            ctx.fillStyle = "#d81b60";
+            ctx.font = "60px 'Fredoka One'"; 
+            ctx.fillText("💋 KISS COUPON 💋", 400, 130);
+
+            ctx.fillStyle = "#333";
+            ctx.font = "bold 40px 'Nunito'";
+            ctx.fillText("Valid for: One Long Kiss", 400, 210);
+
+            ctx.font = "italic 25px 'Nunito'";
+            ctx.fillStyle = "#666";
+            ctx.fillText("Issuer: Farhan  |  To: Kusum", 400, 270);
+            
+            // Stamp
+            ctx.font = "bold 30px 'Fredoka One'";
+            ctx.fillStyle = "#ff8a80";
+            ctx.save();
+            ctx.translate(650, 300);
+            ctx.rotate(-0.2);
+            ctx.fillText("OFFICIAL", 0, 0);
+            ctx.restore();
+
+            const link = document.createElement('a');
+            link.download = 'farhan-kiss-coupon.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>

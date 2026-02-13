@@ -16,10 +16,10 @@
 
         .back-btn {
             position: absolute; top: 20px; left: 20px; pointer-events: auto;
-            text-decoration: none; background: rgba(255, 255, 255, 0.8); 
+            text-decoration: none; background: rgba(255, 255, 255, 0.9); 
             padding: 10px 25px; border-radius: 50px; font-weight: 700; color: #d81b60;
             box-shadow: 0 5px 15px rgba(233, 30, 99, 0.1); z-index: 10;
-            backdrop-filter: blur(5px);
+            /* PERFORMANCE FIX: Removed backdrop-filter */
         }
 
         .score-display {
@@ -36,19 +36,19 @@
             text-transform: uppercase;
         }
 
-        /* UI STYLES */
+        /* OPTIMIZED UI (Removed Blur) */
         .start-screen, .modal {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.4); z-index: 20;
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.85); /* Solid semi-transparent bg instead of blur */
+            z-index: 20;
         }
         
         .card {
-            background: rgba(255, 255, 255, 0.9);
+            background: #ffffff;
             padding: 40px; border-radius: 40px; text-align: center;
             box-shadow: 0 20px 50px rgba(233, 30, 99, 0.15);
-            border: 1px solid white;
+            border: 2px solid #ffeff4;
             animation: float 4s infinite ease-in-out;
             max-width: 85%; width: 320px;
         }
@@ -120,7 +120,7 @@
         let gameLoopId;
         let inputLocked = false;
 
-        // --- PARTICLES ---
+        // --- BACKGROUND PARTICLES ---
         const particles = [];
         function initParticles() {
             particles.length = 0;
@@ -144,8 +144,8 @@
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.rotation);
-                // PERFORMANCE FIX: Removed shadowBlur
-                ctx.font = "40px 'Fredoka One'";
+                // Removed Shadow Blur for Performance
+                ctx.font = "40px 'Fredoka One', cursive";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText("💋", 0, 0);
@@ -173,13 +173,13 @@
             x: -200, y: 0, active: false,
             spawn: function(lastPipeX) {
                 this.active = true;
-                this.x = lastPipeX + 320; // Distance
+                this.x = lastPipeX + 320; 
                 this.y = height / 2;
             },
             draw: function() {
                 if(!this.active) return;
                 ctx.save();
-                // PERFORMANCE FIX: Removed shadowBlur
+                // Removed Shadow Blur for Performance
                 ctx.font = "40px 'Fredoka One'";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
@@ -219,7 +219,6 @@
                 for(let i=0; i<this.items.length; i++) {
                     let p = this.items[i];
                     
-                    // Top
                     ctx.fillRect(p.x, 0, this.w, p.top);
                     ctx.strokeRect(p.x, 0, this.w, p.top);
                     ctx.beginPath();
@@ -229,7 +228,6 @@
                     }
                     ctx.stroke();
 
-                    // Bottom
                     ctx.fillRect(p.x, height - p.bottom, this.w, p.bottom);
                     ctx.strokeRect(p.x, height - p.bottom, this.w, p.bottom);
                     ctx.beginPath();
@@ -371,9 +369,8 @@
             inputLocked = true; 
             const finalScore = score; 
             const startScreen = document.getElementById('startScreen');
-            startScreen.style.background = "rgba(255,0,0,0.15)"; 
+            startScreen.style.background = "rgba(255,255,255,0.7)"; /* Removed Blur */
             startScreen.style.display = 'flex';
-            const card = startScreen.querySelector('.card');
             
             const btn = startScreen.querySelector('button');
             btn.innerText = "Restart";
@@ -386,7 +383,7 @@
                 startScreen.querySelector('p').innerHTML = "Try again, love.<br>Score: " + finalScore + " / " + TARGET_PIPES;
             }
             
-            setTimeout(() => { inputLocked = false; startScreen.style.background = "rgba(255,255,255,0.4)"; }, 600);
+            setTimeout(() => { inputLocked = false; }, 600);
         }
 
         function winGame() {
@@ -398,7 +395,8 @@
             if(sound) sound.play().catch(e => console.log("Audio error:", e));
 
             document.getElementById('winModal').style.display = 'flex';
-            confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 }, colors: ['#ff8a80', '#ffcdd2'] });
+            // PERFORMANCE FIX: Reduced particle count from 200 to 100
+            confetti({ particleCount: 100, spread: 120, origin: { y: 0.6 }, colors: ['#ff8a80', '#ffcdd2'] });
         }
 
         function downloadCoupon() {

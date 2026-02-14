@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Valentine's Day ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&family=Pacifico&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            margin: 0; padding: 0; overflow: hidden;
+            background: linear-gradient(to bottom, #fdfbf7 0%, #fae3d9 100%);
+            font-family: 'Nunito', sans-serif;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: flex-start;
+            height: 100vh; touch-action: none; user-select: none;
+        }
+
+        .back-btn {
+            position: absolute; top: 15px; left: 15px;
+            text-decoration: none; background: rgba(255, 255, 255, 0.9); 
+            padding: 8px 20px; border-radius: 50px; font-weight: 700; color: #d81b60;
+            box-shadow: 0 5px 15px rgba(233, 30, 99, 0.1); z-index: 10;
+        }
+
+        h1 {
+            font-family: 'Fredoka One'; color: #d81b60; margin: 10px 0 5px;
+            font-size: 1.5rem; text-align: center; pointer-events: none;
+        }
+
+        /* --- REFERENCE IMAGE (THE GOAL) --- */
+        .reference-container {
+            display: flex; flex-direction: column; align-items: center;
+            margin-bottom: 10px;
+        }
+        .reference-label {
+            font-size: 0.8rem; font-weight: 800; color: #ff8a80; text-transform: uppercase;
+            margin-bottom: 3px; letter-spacing: 1px;
+        }
+        .reference-img {
+            width: 80px; height: 80px; 
+            border: 3px solid white;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background-image: url('../us.jpg');
+            background-size: cover;
+        }
+
+        /* --- THE GRID (DROP ZONES) --- */
+        .puzzle-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            width: 320px; height: 320px; 
+            border: 2px solid #ff8a80;
+            background: rgba(255, 255, 255, 0.5); 
+            border-radius: 5px;
+            box-shadow: 0 10px 30px rgba(216, 27, 96, 0.15);
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .drop-zone {
+            width: 100%; height: 100%;
+            border: 1px dashed rgba(255, 138, 128, 0.5); 
+            box-sizing: border-box;
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1; 
+        }
+
+        .zone-number {
+            position: absolute;
+            color: #ff8a80; font-weight: 800; font-size: 0.8rem;
+            opacity: 0.6; pointer-events: none;
+        }
+
+        /* --- THE PIECES (DRAGGABLES) --- */
+        .pieces-container {
+            width: 320px;
+            flex: 1; 
+            background: rgba(255,255,255,0.6);
+            border-radius: 20px 20px 0 0;
+            padding: 15px;
+            overflow-y: auto; 
+            display: flex; flex-wrap: wrap; justify-content: center; align-content: flex-start; gap: 8px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        }
+
+        .piece {
+            width: 62px; height: 62px;
+            background-image: url('../us.jpg');
+            background-size: 320px 320px;
+            border-radius: 3px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: grab;
+            touch-action: none;
+            position: relative; z-index: 10;
+            flex-shrink: 0;
+        }
+        
+        .piece.dragging {
+            position: fixed; z-index: 1000;
+            width: 64px; height: 64px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            pointer-events: none;
+            transform: scale(1.1);
+        }
+
+        /* --- WIN MODAL --- */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95);
+            display: none; flex-direction: column;
+            align-items: center; justify-content: center;
+            z-index: 200; animation: fadeIn 0.5s;
+        }
+        
+        .win-card {
+            background: white; padding: 20px; border-radius: 30px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            border: 4px solid #ff8a80;
+            width: 85%; max-width: 350px;
+            max-height: 90vh; overflow-y: auto;
+        }
+
+        .polaroid {
+            background: white; padding: 8px 8px 30px 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: rotate(-2deg); margin: 15px auto;
+            border: 1px solid #eee; width: 150px;
+        }
+        .polaroid img { width: 100%; border-radius: 2px; }
+
+        /* VISUAL COUPON (CSS Preview) */
+        .coupon-visual {
+            background: #fff0f5;
+            border: 2px dashed #d81b60;
+            padding: 15px; border-radius: 15px;
+            margin: 15px 0; position: relative;
+        }
+        
+        .btn {
+            background: #ff8a80; color: white; border: none; 
+            padding: 12px 40px; border-radius: 50px; 
+            font-family: 'Fredoka One'; font-size: 1.1rem;
+            box-shadow: 0 5px 15px rgba(255, 138, 128, 0.4);
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" src="../vdwin.mp3" loop></audio>
+
+    <a href="../index.html" class="back-btn">Back</a>
+
+    <h1>Complete The Puzzle</h1>
+    
+    <div class="reference-container">
+        <div class="reference-label">Goal</div>
+        <div class="reference-img"></div>
+    </div>
+
+    <div class="puzzle-board" id="board">
+        </div>
+
+    <div class="pieces-container" id="pool">
+        </div>
+
+    <div class="modal" id="winModal">
+        <div class="win-card">
+            <h1 style="font-size: 1.8rem; margin: 0; color: #d81b60;">Happy Valentine's Day!</h1>
+            <p style="color: #888; font-size: 0.9rem; margin-top: 5px; font-weight: 700;">
+                I Love You ❤️
+            </p>
+            
+            <div class="polaroid">
+                <img src="../us.jpg" onerror="this.src='https://placehold.co/400x400/ff8a80/ffffff?text=Us'">
+                <div style="font-family:'Pacifico'; color:#555; margin-top:5px; font-size: 0.9rem;">Forever Us ❤️</div>
+            </div>
+
+            <div class="coupon-visual">
+                <div style="font-family:'Pacifico'; color:#d81b60; font-size:1.5rem;">Love Coupon</div>
+                <div style="font-family:'Nunito'; font-size:0.9rem; color:#333; margin-top: 5px;">Redeem it to get <b>Unlimited Love</b></div>
+                <div style="font-family:'Nunito'; font-size:0.8rem; color:#888; margin-top: 3px;">Validity: Forever</div>
+            </div>
+            
+            <button class="btn" onclick="downloadCoupon()">Save Coupon</button>
+        </div>
+    </div>
+
+    <script>
+        const board = document.getElementById('board');
+        const pool = document.getElementById('pool');
+        const gridSize = 5;
+        const totalPieces = 25;
+        let pieces = [];
+
+        function init() {
+            // 1. Create Drop Zones
+            for (let i = 0; i < totalPieces; i++) {
+                const zone = document.createElement('div');
+                zone.classList.add('drop-zone');
+                zone.dataset.index = i;
+                
+                const num = document.createElement('span');
+                num.classList.add('zone-number');
+                num.innerText = i + 1;
+                zone.appendChild(num);
+
+                board.appendChild(zone);
+            }
+
+            // 2. Create Pieces
+            for (let i = 0; i < totalPieces; i++) {
+                const piece = document.createElement('div');
+                piece.classList.add('piece');
+                piece.dataset.id = i; 
+                
+                const col = i % gridSize;
+                const row = Math.floor(i / gridSize);
+                
+                const posX = (col / (gridSize - 1)) * 100;
+                const posY = (row / (gridSize - 1)) * 100;
+                
+                piece.style.backgroundPosition = `${posX}% ${posY}%`;
+                
+                pieces.push(piece);
+            }
+
+            // 3. Shuffle
+            pieces.sort(() => Math.random() - 0.5);
+            pieces.forEach(p => {
+                pool.appendChild(p);
+                addDragLogic(p);
+            });
+        }
+
+        let draggedPiece = null;
+        let touchOffsetX = 0;
+        let touchOffsetY = 0;
+
+        function addDragLogic(el) {
+            el.addEventListener('mousedown', startDrag);
+            el.addEventListener('touchstart', startDrag, {passive: false});
+        }
+
+        function startDrag(e) {
+            e.preventDefault();
+            draggedPiece = e.target;
+
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const rect = draggedPiece.getBoundingClientRect();
+            touchOffsetX = clientX - rect.left;
+            touchOffsetY = clientY - rect.top;
+
+            draggedPiece.classList.add('dragging');
+            document.body.appendChild(draggedPiece); 
+            
+            movePiece(clientX, clientY);
+
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('touchmove', onMove, {passive: false});
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+        }
+
+        function onMove(e) {
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            movePiece(clientX, clientY);
+        }
+
+        function movePiece(x, y) {
+            if (!draggedPiece) return;
+            draggedPiece.style.left = (x - touchOffsetX) + 'px'; 
+            draggedPiece.style.top = (y - touchOffsetY) + 'px';
+        }
+
+        function endDrag(e) {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchend', endDrag);
+
+            if (!draggedPiece) return;
+
+            const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+
+            draggedPiece.style.display = 'none';
+            let elemBelow = document.elementFromPoint(clientX, clientY);
+            draggedPiece.style.display = 'block';
+
+            let dropZone = elemBelow ? elemBelow.closest('.drop-zone') : null;
+
+            if (dropZone && !dropZone.querySelector('.piece')) {
+                dropZone.appendChild(draggedPiece); 
+                checkWin();
+            } else {
+                pool.appendChild(draggedPiece); 
+            }
+
+            draggedPiece.classList.remove('dragging');
+            draggedPiece.style.left = '';
+            draggedPiece.style.top = '';
+            draggedPiece = null;
+        }
+
+        // --- STRICT WIN CHECK ---
+        function checkWin() {
+            const zones = document.querySelectorAll('.drop-zone');
+            let correctCount = 0;
+            let filledCount = 0;
+
+            zones.forEach(zone => {
+                const piece = zone.querySelector('.piece');
+                if (piece) {
+                    filledCount++;
+                    if (piece.dataset.id == zone.dataset.index) {
+                        correctCount++;
+                    }
+                }
+            });
+
+            // Only trigger if Board is FULL AND 100% CORRECT
+            if (filledCount === totalPieces) {
+                if (correctCount === totalPieces) {
+                    setTimeout(showLove, 500);
+                } 
+            }
+        }
+
+        function showLove() {
+            const music = document.getElementById('bgMusic');
+            if(music) music.play().catch(e=>{});
+            document.getElementById('winModal').style.display = 'flex';
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#ff8a80', '#d81b60'] });
+        }
+
+        // --- PINTEREST STYLE COUPON GENERATOR ---
+        function downloadCoupon() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1000; canvas.height = 500; 
+            const ctx = canvas.getContext('2d');
+
+            // 1. Background (Pastel Pink)
+            ctx.fillStyle = "#fff0f5"; 
+            ctx.fillRect(0, 0, 1000, 500);
+
+            // 2. Rounded Border (Dashed)
+            ctx.strokeStyle = "#d81b60";
+            ctx.lineWidth = 4;
+            ctx.setLineDash([15, 10]);
+            
+            // Draw rounded rect manually for dashed border support
+            let x=30, y=30, w=940, h=440, r=30;
+            ctx.beginPath();
+            ctx.moveTo(x+r, y);
+            ctx.lineTo(x+w-r, y);
+            ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+            ctx.lineTo(x+w, y+h-r);
+            ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+            ctx.lineTo(x+r, y+h);
+            ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+            ctx.lineTo(x, y+r);
+            ctx.quadraticCurveTo(x, y, x+r, y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 3. TEXT
+            ctx.textAlign = "center";
+            
+            // Title (Pacifico / Cursive vibe)
+            ctx.fillStyle = "#d81b60";
+            ctx.font = "italic bold 100px Arial"; // Fallback to Arial, italic mimics aesthetic
+            ctx.fillText("Love Coupon", 500, 180);
+
+            // Main Offer
+            ctx.fillStyle = "#333";
+            ctx.font = "bold 50px Arial";
+            ctx.fillText("Redeem it to get", 500, 270);
+            
+            ctx.fillStyle = "#ff8a80";
+            ctx.font = "bold 70px Arial";
+            ctx.fillText("UNLIMITED LOVE", 500, 350);
+
+            // Validity
+            ctx.fillStyle = "#666";
+            ctx.font = "40px Arial";
+            ctx.fillText("Validity: Forever", 500, 440);
+
+            // 4. DECORATIVE HEARTS
+            ctx.fillStyle = "#d81b60";
+            ctx.font = "50px Arial";
+            ctx.fillText("❤️", 80, 80);
+            ctx.fillText("❤️", 920, 80);
+            ctx.fillText("❤️", 80, 450);
+            ctx.fillText("❤️", 920, 450);
+
+            // 5. DOWNLOAD
+            const link = document.createElement('a');
+            link.download = 'Farhan-Love-Coupon.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        init();
+    </script>
+</body>
+</html>
